@@ -14,3 +14,4 @@
 
 ### 工具
 - [java反编译工具](./toolkit/java反编译工具/)
+- [Windows/Office激活工具](./toolkit/KMSTools/)
