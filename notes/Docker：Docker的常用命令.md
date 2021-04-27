@@ -17,7 +17,7 @@ docker --help
 docker images
 ```
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201221195257879.png)
+![Docker常用命令](./pics/Docker的常用命令.png)
 
 **说明：**
 - REPOSITORY：表示镜像的仓库源；
