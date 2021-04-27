@@ -20,7 +20,7 @@
 - [CentOS7下gitlab服务部署](./notes/Gitlab：CentOS7下gitlab服务部署.md)
 
 ### ELK
-
+- [ELK：CentOS7下部署ELK获取CDN日志](./notes/ELK：CentOS7下部署ELK获取CDN日志.md)
 
 
 ### 工具
