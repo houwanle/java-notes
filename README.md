@@ -17,7 +17,7 @@
 - [Docker的常用命令](./notes/Docker：Docker的常用命令.md)
 
 ### Gitlab
-
+- [CentOS7下gitlab服务部署](./notes/Gitlab：CentOS7下gitlab服务部署.md)
 
 ### ELK
 
