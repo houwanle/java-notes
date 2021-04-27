@@ -61,7 +61,7 @@ docker run hello-world
 #查看镜像
 docker images
 ```
-  ![CentOS7下docker的安装与卸载](./pics/CentOS7下docker的安装与卸载.png)
+  ![CentOS7下docker的安装与卸载](./pics/Docker：CentOS7下docker的安装与卸载.png)
 
 ## 9. 配置镜像加速
 ```bash
