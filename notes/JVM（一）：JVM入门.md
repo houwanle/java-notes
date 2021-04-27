@@ -2,16 +2,16 @@
 
 ### 1.JVM基础知识
 
-  ![Java从编码到执行](./pics/JVM入门1.png)
+  ![Java从编码到执行](./pics/JVM（一）：JVM入门_1.png)
 
 Java的解释和编译是可以混合的。
 
 
-  ![JVM是跨语言的平台](./pics/JVM入门2.png)
+  ![JVM是跨语言的平台](./pics/JVM（一）：JVM入门_2.png)
 
 100多种语言可以直接运行在JVM虚拟机上
 
-  ![JVM与Java无关](./pics/JVM入门3.png)
+  ![JVM与Java无关](./pics/JVM（一）：JVM入门_3.png)
 
 
 - JVM是一种规范
@@ -24,7 +24,7 @@ Java的解释和编译是可以混合的。
 
 ### 2.javac的过程
 
-  ![javac的过程](./pics/JVM入门4.png)
+  ![javac的过程](./pics/JVM（一）：JVM入门_4.png)
 
 ### 3.常见的JVM实现
 - Hotspot
@@ -45,4 +45,4 @@ Java的解释和编译是可以混合的。
 
 ### 4.JVM/JRE/JDK
 
-  ![JDK/JRE/JVM](./pics/JVM入门5.png)
+  ![JDK/JRE/JVM](./pics/JVM（一）：JVM入门5.png)
