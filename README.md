@@ -29,6 +29,9 @@
 ### ELK
 - [ELK：CentOS7下部署ELK获取CDN日志](./notes/ELK：CentOS7下部署ELK获取CDN日志.md)
 
+### IDEA
+- [IDEA：idea-2018.2版本破解教程](./notes/IDEA：idea-2018.2版本破解教程.md)
+
 
 ### 工具
 - [java反编译工具](./toolkit/java反编译工具/)
