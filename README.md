@@ -1,3 +1,6 @@
+### Java
+- [Java：字符串处理工具类](./notes/Java：字符串处理工具类.md)
+
 ### JVM
 - [JVM：GC和GC-Tuning](./notes/JVM：GC和GC-Tuning.md)
 - [JVM（一）：JVM入门](./notes/JVM（一）：JVM入门.md)
