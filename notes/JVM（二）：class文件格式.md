@@ -7,7 +7,7 @@
   - sublime/notepad/
   - IDEA插件-BinEd
 - 有很多可以观察ByteCode的方法
-  - javap
+  - javap：显示class文件信息（java自带）
   - JBE:可以直接修改
   - JClassLib:IDEA插件之一
 - classfile构成
@@ -21,3 +21,11 @@
     u2
   }
   ```
+
+- jdk1.8类文件格式
+
+  ![JVM（二）：jdk1.8类文件格式](./pics/JVM（二）：jdk1.8类文件格式.png)
+
+- 类文件的十六进制编码
+
+  ![JVM（二）：类文件的十六进制编码](./pics/JVM（二）：类文件的十六进制编码.png)
