@@ -10,6 +10,14 @@
   ![JVM（四）：从CPU到各层所需要的时间](./pics/JVM（四）：从CPU到各层所需要的时间.jpg)
 
 #### 硬件层数据一致性协议
+- 多线程一致性的硬件层支持(老的CPU使用的)
+
+  ![JVM（四）：多线程一致性的硬件层支持](./pics/JVM（四）：多线程一致性的硬件层支持.jpg)
+
+- Intel中的MESI-Cache一致性协议
+
+  ![JVM（四）：Intel中的MESI-Cache一致性协议](./pics/JVM（四）：Intel中的MESI-Cache一致性协议.jpg)
+
 - 协议很多，Intel采用MESI（https://www.cnblogs.com/z00377750/p/9180644.html）
 - 现代CPU数据一致性实现 = 缓存锁（MESI...） + 总线锁
 - 读取缓存以cache line为基本单位，目前64bytes；
@@ -19,7 +27,7 @@
   - cache line的概念-缓存行对齐-伪共享
 
   ![JVM（四）：cache line的概念-缓存行对齐-伪共享](./pics/JVM（四）：cacheline的概念-缓存行对齐-伪共享.jpg)
-  
+
     - 验证示例代码
     ```java
     package com.lele.juc.c_028_FalseSharing;
@@ -227,18 +235,43 @@
   ```
 
 ##### 如何保证特定情况下不乱序
-- volatile 有序
-- 有序性保障、CPU内存保障
-  - sfence：在sfence指令前的写操作当必须在sfence指令后的写操作前完成；
-  - lfence：在lfence值指令前的读操作当必须在lfence指令后的读操作前完成；
-  - mfence：在mfence指令前的读写操作当作必须在mfence指令后的读写操作前完成；
+- 硬件内存保障（X86）
+  - sfence（save fence）：在sfence指令前的写操作当必须在sfence指令后的写操作前完成；
+  - lfence（load fence）：在lfence值指令前的读操作当必须在lfence指令后的读操作前完成；
+  - mfence（modify/mix fence）：在mfence指令前的读写操作当作必须在mfence指令后的读写操作前完成；
+  > 原子指令，如X86上的“lock...”指令是一个Full Barrier，执行时会锁住内存子系统来确保执行顺序，甚至跨多个CPU。Software Locks通常使用了内存屏障或原子指令来实现变量可见性和保持程序顺序。
+- JVM级别如何规范（JSR133）
+  1. LoadLoad屏障：
+    对于这样的语句Load1;LoadLoad;Load2,在Load2及后续读取操作要读取的数据被访问前，保证Load1要读取的数据被读取完毕。
+  2. StoreStore屏障：对于这样的语句Store1;StoreStore;Store2，在Store2及后续写入操作前，保证Store1的写入操作对其他处理器可见。
+  3. LoadStore屏障：对于这样的语句Load1; LoadStore; Store2，在Store2及后续写入操作被刷出前，保证Load1要读取的数据被读取完毕。
+  4. StoreLoad屏障：对于这样的语句Store1; StoreLoad; Load2，在Load2及后续所有读取操作执行前，保证Store1的写入对所有处理器可见。
 
+- volatile的实现细节
+  1. 字节码层面 ACC_VOLATILE
+  2. JVM层面 volatile内存区的读写 都加屏障
+      > StoreStoreBarrier
+      >
+      > volatile 写操作
+      >
+      > StoreLoadBarrier
 
+      > LoadLoadBarrier
+      >
+      > volatile 读操作
+      >
+      > LoadStoreBarrier
+  3. OS和硬件层面
+      - https://blog.csdn.net/qq_26222859/article/details/52235930
+      - hsdis - HotSpot Dis Assembler
+      - windows lock 指令实现 | MESI实现
 
-- 多线程一致性的硬件层支持(老的CPU使用的)
-
-  ![JVM（四）：多线程一致性的硬件层支持](./pics/JVM（四）：多线程一致性的硬件层支持.jpg)
-
-- Intel中的MESI-Cache一致性协议
-
-  ![JVM（四）：Intel中的MESI-Cache一致性协议](./pics/JVM（四）：Intel中的MESI-Cache一致性协议.jpg)
+- synchronized实现细节
+  1. 字节码层面
+      - ACC_SYNCHRONIZED
+      - monitorenter monitorexit
+  2. JVM层面
+      - C C++ 调用了操作系统提供的同步机制
+  3. OS和硬件层面
+      - X86 : lock cmpxchg / xxx
+      - https://blog.csdn.net/21aspnet/article/details/88571740
