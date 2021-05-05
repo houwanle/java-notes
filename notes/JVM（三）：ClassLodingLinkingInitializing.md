@@ -66,6 +66,14 @@
       - extends ClassLoader（继承ClassLoader）
       - overwrite findClass() -> defineClass(byte[] -> Class clazz)（重写模板方法findClass，调用defineClass）
       - 加密（自定义加载器加载自加密的class，防止反编译，防止篡改）
+      - parent是用super(parent)指定；
+      - 双亲委派的打破
+        - 重写loadClass()可以打破双亲委派
+        - 何时打破过？
+          - jdk1.2之前，自定义ClassLoader都必须重写loadClass()
+          - ThreadContextClassLoader可以实现基础类调用实现类代码，通过thread.setContextClassLoader指定；
+          - 热启动，热部署
+            - osgi tomcat 都有自己的模块指定classloader（可以加载同一类库的不同版本）
     - 混合执行 编译执行 解释执行
       - 解释器（bytecode intepreter）
       - JIT（Just In-Time compiler）
@@ -81,7 +89,10 @@
       - -Xcomp 使用纯编译模式，执行很快，启动很慢
       - -XX:CompileThreshold=10000 检测热点代码
   - Linking
-    - Verification（校验）：是否符合标准
-    - Preparation：将Class文件赋默认值
-    - Resolution（解析）：
-  - Initializing：将静态变量赋初始值
+    - Verification（校验）：验证文件是否符合JVM规定
+    - Preparation：静态成员变量赋默认值
+    - Resolution（解析）：将类、方法、属性等符号引用解析为直接引用；常量池中的各种符号引用解析为指针、偏移量等内存地址的直接引用
+  - Initializing：调用类初始化代码<clinit>，给静态成员变量赋初始值；
+- 小总结：
+  - load - 默认值 - 初始值
+  - new - 申请内存 - 默认值 - 初始值
