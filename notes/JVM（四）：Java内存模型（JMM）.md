@@ -346,7 +346,7 @@ Oops Ordinary Object Pointers
 - 新建项目ObjectSize （1.8）
 - 创建文件ObjectSizeAgent
   ```java
-  package com.mashibing.jvm.agent;
+  package com.lele.jvm.agent;
 
   import java.lang.instrument.Instrumentation;
 
@@ -365,8 +365,8 @@ Oops Ordinary Object Pointers
 - src目录下创建META-INF/MANIFEST.MF
   ```
   Manifest-Version: 1.0
-  Created-By: mashibing.com
-  Premain-Class: com.mashibing.jvm.agent.ObjectSizeAgent
+  Created-By: lele.com
+  Premain-Class: com.lele.jvm.agent.ObjectSizeAgent
   ```
   注意Premain-Class这行必须是新的一行（回车 + 换行），确认idea不能有任何错误提示
 
@@ -381,7 +381,7 @@ project structure - project settings - library 添加该jar包
 - 如何使用该类：
 
 ```java
-package com.mashibing.jvm.c3_jmm;
+package com.lele.jvm.c3_jmm;
 
 import com.mashibing.jvm.agent.ObjectSizeAgent;
 
@@ -408,6 +408,13 @@ public class T03_SizeOfAnObject {
 }
 ```
 
+- markword 64位
+
+  ![JVM（四）：markword结构，定义在markOop.hpp文件](./pics/JVM（四）：markword结构，定义在markOop.hpp文件.png)
+
+  ![JVM（四）：markword64位](./pics/JVM（四）：markword64位.png)
+
+
 ##### Hotspot开启内存压缩的规则（64位机）
 - 4G以下，直接砍掉高32位
 - 4G - 32G，默认开启内存压缩 ClassPointers Oops
@@ -424,5 +431,9 @@ https://cloud.tencent.com/developer/article/1482500
 
 ##### 对象定位
 https://blog.csdn.net/clover_lily/article/details/80095580
-- 句柄池
-- 直接指针
+- 句柄池(垃圾回收效率高)
+- 直接指针(HotSpot使用)
+
+##### 对象的分配
+
+  ![JVM（四）：对象的分配](./pics/JVM（四）：对象的分配.png)
