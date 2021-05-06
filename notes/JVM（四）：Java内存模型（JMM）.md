@@ -275,3 +275,154 @@
   3. OS和硬件层面
       - X86 : lock cmpxchg / xxx
       - https://blog.csdn.net/21aspnet/article/details/88571740
+
+### java8大原子操作（虚拟机规范）
+> 已弃用，了解即可
+
+**最新的JSR-133已经放弃这种描述，但JMM没有变化。《深入理解Java虚拟机》P364**
+
+  ![JVM（四）：java并发内存模型](./pics/JVM（四）：java并发内存模型.png)
+
+- lock：主内存，标识变量为线程独占；
+- unlock：主内存，解锁线程独占变量；
+- read：主内存，读取内容到工作内存；
+- load：工作内存，read后的值放入线程本地变量副本；
+- use：工作内存，传值给执行引擎；
+- assign：工作内存，执行引擎结果赋值给线程本地变量；
+- store：工作内存，存值到主内存给write备用
+- write：主内存，写变量值；
+
+### happens-before原则（JVM规定重排序必须遵守的规则）
+> JLS17.4.5
+
+- 程序次序规则：同一个线程内，按照代码出现的顺序，前面的代码先行于后面的代码，准确的说是控制流顺序，因为要考虑到分支和循环结构；
+- 管程锁定规则：一个unlock操作先行发生于后面（时间上）对同一个锁的lock操作；
+- volatile变量规则：对一个volatile变量的写操作先行发生于后面（时间上）对这个变量的读操作；
+- 线程启动规则：Thread的start()方法先行发生于这个线程的每一个操作；
+- 线程终止规则：线程的所有操作都先行于此线程的终止检测。可以通过Thread.join()方法结束、Thread.isAlive()的返回值等手段检测线程的终止。
+- 线程中断规则：对线程interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生，可以通过Thread.interrupt()方法检测线程是否中断。
+- 对象终结规则：一个对象的初始化完成先行于发生它的finalize()方法的开始；
+- 传递性：如果操作A先行于操作B，操作B先行于操作C，那么操作A先行于操作C；
+
+> as if serial
+>
+> 不管如何重排序，单线程执行结果不会改变。
+
+### 对象的内存布局
+
+#### 对象的创建过程
+1. class loading
+2. class linking(verification, preparation, resolution)
+3. class initializing
+4. 申请对象内存
+5. 成员变量赋默认值
+6. 调用构造方法<init>
+    - 成员变量顺序赋初始值
+    - 执行构造方法语句
+
+#### 使用JavaAgent测试Object的大小
+##### 对象大小（64位机）
+###### 观察虚拟机配置
+```
+java -XX:+PrintCommandLineFlags -version
+```
+
+###### 普通对象
+1. 对象头：markword  8
+2. ClassPointer指针：-XX:+UseCompressedClassPointers 为4字节 不开启为8字节
+3. 实例数据
+  引用类型：-XX:+UseCompressedOops 为4字节 不开启为8字节
+Oops Ordinary Object Pointers
+4. Padding对齐，8的倍数
+
+###### 数组对象
+1. 对象头：markword 8
+2. ClassPointer指针同上
+3. 数组长度：4字节
+4. 数组数据
+5. 对齐 8的倍数
+
+##### 实验
+- 新建项目ObjectSize （1.8）
+- 创建文件ObjectSizeAgent
+  ```java
+  package com.mashibing.jvm.agent;
+
+  import java.lang.instrument.Instrumentation;
+
+  public class ObjectSizeAgent {
+      private static Instrumentation inst;
+
+      public static void premain(String agentArgs, Instrumentation _inst) {
+          inst = _inst;
+      }
+
+      public static long sizeOf(Object o) {
+          return inst.getObjectSize(o);
+      }
+  }
+  ```
+- src目录下创建META-INF/MANIFEST.MF
+  ```
+  Manifest-Version: 1.0
+  Created-By: mashibing.com
+  Premain-Class: com.mashibing.jvm.agent.ObjectSizeAgent
+  ```
+  注意Premain-Class这行必须是新的一行（回车 + 换行），确认idea不能有任何错误提示
+
+- 打包jar文件
+- 在需要使用该Agent Jar的项目中引入该Jar包
+project structure - project settings - library 添加该jar包
+- 运行时需要该Agent Jar的类，加入参数：
+```
+  -javaagent:C:\work\ijprojects\ObjectSize\out\artifacts\ObjectSize_jar\ObjectSize.jar
+```
+
+- 如何使用该类：
+
+```java
+package com.mashibing.jvm.c3_jmm;
+
+import com.mashibing.jvm.agent.ObjectSizeAgent;
+
+public class T03_SizeOfAnObject {
+   public static void main(String[] args) {
+       System.out.println(ObjectSizeAgent.sizeOf(new Object()));
+       System.out.println(ObjectSizeAgent.sizeOf(new int[] {}));
+       System.out.println(ObjectSizeAgent.sizeOf(new P()));
+   }
+
+   private static class P {
+                       //8 _markword
+                       //4 _oop指针
+       int id;         //4
+       String name;    //4
+       int age;        //4
+
+       byte b1;        //1
+       byte b2;        //1
+
+       Object o;       //4
+       byte b3;        //1
+   }
+}
+```
+
+##### Hotspot开启内存压缩的规则（64位机）
+- 4G以下，直接砍掉高32位
+- 4G - 32G，默认开启内存压缩 ClassPointers Oops
+- 32G，压缩无效，使用64位
+- 内存并不是越大越好（^-^）
+
+##### IdentityHashCode的问题
+回答白马非马的问题：
+当一个对象计算过identityHashCode之后，不能进入偏向锁状态
+https://cloud.tencent.com/developer/article/1480590
+https://cloud.tencent.com/developer/article/1484167
+https://cloud.tencent.com/developer/article/1485795
+https://cloud.tencent.com/developer/article/1482500
+
+##### 对象定位
+https://blog.csdn.net/clover_lily/article/details/80095580
+- 句柄池
+- 直接指针
