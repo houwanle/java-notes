@@ -1,4 +1,4 @@
-## Class Loding Linking Initializing
+## JVM（三）：ClassLodingLinkingInitializing
 
 ![JVM（三）：Class加载过程](./pics/JVM（三）：Class加载过程.png)
 
@@ -22,30 +22,31 @@
           - AppClassLoader加载路径
 
       - 测试代码
-      ```java
-      package com.lele.jvm.classloader;
 
-      /**
-       * @author: lele
-       * @date: 2021/5/3 20:30
-       * @description:
-       */
-      public class T003_ClassLoaderScope {
-          public static void main(String[] args) {
-              String pathBoot = System.getProperty("sun.boot.class.path");
-              System.out.println(pathBoot.replaceAll(";",System.lineSeparator()));
+        ```java
+        package com.lele.jvm.classloader;
 
-              System.out.println("------------------------");
-              String pathExt = System.getProperty("java.ext.dirs");
-              System.out.println(pathExt.replaceAll(";",System.lineSeparator()));
+        /**
+         * @author: lele
+         * @date: 2021/5/3 20:30
+         * @description:
+         */
+        public class T003_ClassLoaderScope {
+            public static void main(String[] args) {
+                String pathBoot = System.getProperty("sun.boot.class.path");
+                System.out.println(pathBoot.replaceAll(";",System.lineSeparator()));
 
-              System.out.println("------------------------");
-              String pathApp = System.getProperty("java.class.path");
-              System.out.println(pathApp.replaceAll(";",System.lineSeparator()));
+                System.out.println("------------------------");
+                String pathExt = System.getProperty("java.ext.dirs");
+                System.out.println(pathExt.replaceAll(";",System.lineSeparator()));
 
-          }
-      }
-      ```
+                System.out.println("------------------------");
+                String pathApp = System.getProperty("java.class.path");
+                System.out.println(pathApp.replaceAll(";",System.lineSeparator()));
+
+            }
+        }
+        ```
     - 双亲委派，主要出于安全来考虑
       - 父加载器不是“类加载器的加载器”，也不是“类加载器的父类加载器”
       - 双亲委派是一个孩子向父亲方向，然后父亲向孩子方向的双亲委派过程。
