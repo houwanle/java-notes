@@ -1,5 +1,5 @@
 
-## ClassFileFormat
+## JVM（二）：class文件格式
 - 二进制字节流
 - 数据类型：u1 u2 u4 u8 和 _info（表类型）
   - _info 的来源是hotspot源码中的写法
