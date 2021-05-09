@@ -74,7 +74,7 @@
     - 除Epslion、ZGC、Shenandoah之外的GC都是使用逻辑分代模型；
     - G1是逻辑分代，物理不分代；
     - 除此之外不仅逻辑分代，而且物理分代；
-2. 新生代 + 老年代 + 永久代（jdk1.7）/ 元数据区(jdk1.8) Metaspace
+2. 新生代 + 老年代 + 永久代（jdk1.7）Perm Generation/ 元数据区(jdk1.8) Metaspace
    1. 永久代/元数据：装Class对象
    2. 永久代必须指定大小限制；元数据可以设置，也可以不设置，无上限（受限于物理内存）
    3. 字符串常量存放： 1.7 - 永久代；1.8 - 堆
@@ -201,6 +201,23 @@ jdk1.8 默认的垃圾回收：PS + ParallelOld
 - G1 --- 上百G
 - ZGC --- 4T
 
+> 常见垃圾回收器组合参数设定（1.8）
+- -XX:+UseSerialGC = Serial New(DefNew) + Serial Old
+  - 小型程序。默认情况下不会是这种选项，HotSpot会根据计算及配置和JDK版本自动选择收集器
+- -XX:+UseParNewGC = ParNew + Serial Old
+  - 这个组合已经很少用（在某些版本中已经废弃）
+  - https://stackoverflow.com/questions/34962257/why-remove-support-for-parnewserialold-anddefnewcms-in-the-future
+- -XX:+UseConc(urrent)MarkSweepGC = ParNew + CMS + Serial Old
+- -XX:+UseParallelGC = Parallel Scavenge + Parallel Old (1.8默认) 【PS + SerialOld】
+- -XX:+UseParallelOldGC = Parallel Scavenge + Parallel Old
+- -XX:+UseG1GC = G1
+- Linux中没找到默认GC的查看方法，而windows中会打印UseParallelGC
+  - java +XX:+PrintCommandLineFlags -version
+  - 通过GC的日志来分辨
+- Linux下1.8版本默认的垃圾回收器到底是什么？
+  - 1.8.0_181 默认（看不出来）Copy MarkCompact
+  - 1.8.0_222 默认 PS + PO
+
 #### 6.JVM调优第一步，了解生产环境下的垃圾回收器组合
 
 * JVM的命令行参数参考：https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
@@ -218,6 +235,62 @@ jdk1.8 默认的垃圾回收：PS + ParallelOld
   -XX:+PrintFlagsFinal 最终参数值
 
   -XX:+PrintFlagsInitial 默认参数值
+
+java -version
+
+java -X
+
+实验程序：
+
+```java
+import java.util.List;
+import java.util.LinkedList;
+
+public class HelloGC {
+  public static void main(String[] args) {
+    System.out.println("HelloGC!");
+    List list = new LinkedList();
+    for(;;) {
+      byte[] b = new byte[1024*1024];
+      list.add(b);
+    }
+  }
+}
+```
+
+- 区分概念：内存泄漏memory leak，内存溢出out of memory
+  - 内存泄漏：分配内存空间后，其他的的占不了，被废了的对象占用，不回收；
+  - 内存溢出：不断产生对象，内存不够用；
+  - 内存泄漏不会产生内存溢出；
+- java -XX:+PrintCommandLineFlags HelloGC
+  - HelloGC程序的默认参数；
+  - -XX:InitialHeapSize、-XX:MaxHeapSize、-XX:+PrintCommandLineFlags、-XX:UseCompressedClassPointers、-XX:+UseCompressedOops
+- java -Xmn10M -Xms40M -Xmx60M -XX:+PrintCommandLineFlags -XX:+PrintGC  HelloGC
+  - -Xmn：新生代大小
+  - -Xms、-Xmx 一般会设置成一样的，避免堆产生弹性的压缩（浪费系统的计算资源）
+  - -XX:+PrintGC：打印GC的回收信息
+  - PrintGCDetails：打印GC详细信息
+  - PrintGCTimeStamp：打印GC相应的时间
+  - PrintGCCauses：打印GC出现的原因
+- java -XX:+UseConcMarkSweepGC -XX:+PrintCommandLineFlags HelloGC
+  - 查看CMS的GC相关参数
+- java -XX:+PrintFlagsInitial 默认参数值
+- java -XX:+PrintFlagsFinal 最终参数值
+- java -XX:+PrintFlagsFinal | grep xxx 找到对应的参数
+- java -XX:+PrintFlagsFinal -version |grep GC
+
+> PS GC日志详解
+- 每种垃圾回收器的日志格式是不同的！
+- PS日志格式
+
+  ![JVM：PS_GC日志详解](./pics/JVM：PS_GC日志详解.png)
+
+- heap dump部分
+  - eden space 5632K, 94% used [0x00000000ff980000,0x0000000ffeb3e28,0x00000000ff00000]  后面的内存地址指的是：起始地址、使用空间结束地址、整体空间地址
+
+  ![JVM：GCHeapDump](./pics/JVM：GCHeapDump.png)
+
+  - total = eden + 1个survivor
 
 ### 参考资料
 
