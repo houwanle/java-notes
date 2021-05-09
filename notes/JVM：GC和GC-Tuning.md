@@ -69,6 +69,7 @@
   ![标记压缩](./pics/GC和GC-Tuning_6.png)
 
 #### 4.JVM内存分代模型（用于分代垃圾回收算法）
+**新生代：老年代 = 1:2**
 1. 部分垃圾回收器使用的模型
     - 除Epslion、ZGC、Shenandoah之外的GC都是使用逻辑分代模型；
     - G1是逻辑分代，物理不分代；
@@ -116,40 +117,89 @@
   - Parallel Scavenge 15
   - CMS 6
   - G1 15
-- 动态年龄
+- 动态年龄（不重要）
   - Eden + s0 -> s1 ： 超过s1的50%，把年龄最大的对象放入老年代；
+- 分配担保（不重要）：YGC期间，survivor区空间不够了，空间担保直接进入老年代
 
 > 对象的分配过程图
 
   ![对象分配过程图](./pics/对象分配过程图.png)
 
 
-
 #### 5.常见的垃圾回收器
+> JDk 诞生 Serial追随，提高效率，诞生了PS，为了配合CMS，诞生了PN，CMS是1.4版本后期引入，CMS是里程碑式的GC，它开启了并发回收的过程，但是CMS毛病较多，因此目前没有任何一个JDK默认GC是CMS。
+
+> 并发垃圾回收是因为无法忍受STW
+
+
+> 图中连在一起的，都可以组合
 
   ![垃圾回收器](./pics/GC和GC-Tuning_8.png)
 
-1. Serial 年轻代 串行回收
+> 常见的垃圾回收器的组合
+- Serial 和 Serial Old
+- Parallel Scavenge 和 Parallel Old
+- ParNew 和 CMS
+
+> 常见的十种垃圾回收器
+- Serial（单线程）：干活的时候，所有的工作线程都停止了；
+  - STW（stop-the-world，停顿时间），然后清理垃圾
+  - safe point：线程停止，不是立马停止，需要找到安全点才能停止；
+  - 年轻代 串行回收
+  - 现在用的很少
 
   ![Serial](./pics/GC和GC-Tuning_9.png)
 
-2. PS 年轻代 并行回收
+- Parallel Scavenge（多线程）
+  - STW（stop-the-world，停顿时间），然后清理垃圾
+  - 年轻代 并行回收
 
   ![Parallel Scavenge](./pics/GC和GC-Tuning_10.png)
 
-3. ParNew 年轻代 配合CMS的并行回收
+- Parallel New
+  - STW（stop-the-world，停顿时间），然后清理垃圾
+  - 年轻代 配合CMS的并行回收
 
   ![ParNew](./pics/GC和GC-Tuning_11.png)
 
-4. SerialOld 老年代
-5. ParallelOld 老年代
-6. ConcurrentMarkSweep 老年代 并发的， 垃圾回收和应用程序同时运行，降低STW的时间(200ms)
-7. G1(10ms)
-8. ZGC (1ms) PK C++
-9. Shenandoah
-10. Eplison
+- SerialOld 老年代
+- ParallelOld 老年代
+- ConcurrentMarkSweep（CMS使用的是 三色标记+Incremental Update算法）：老年代 并发的， 垃圾回收和应用程序同时运行，降低STW的时间(200ms)
+  - 初始标记（单线程）：STW，只标记GC root上的不可回收的，垃圾不多，短时间能完成；
+  - 并发标记：一边标记，一边清理，最浪费时间；
+  - 重新标记（多线程）：STW，并发标记中产生的新垃圾需要重新标记，垃圾不多，短时间完成；
+  - 并发清理：会产生新的垃圾（浮动垃圾需等下一次CMS来清掉）
+
+  ![JVM：CMS](./pics/JVM：CMS.png)
+
+  - CMS的问题
+    - Memory Fragmentation（内存碎片化）：新的对象不能往老年代装的时候，CMS会变成SerialOld，单线程清理；
+       - -XX:+UseCMSCompactAtFullCollection
+       - -XX:CMSFullGCsBeforeCompaction 默认为0，指的是经过多少次FGC才进行压缩
+    - Floating Garbage（浮动垃圾）：
+      - Concurrent Mode Failure：老年代满了，同时浮动垃圾没有清理完，这时会用SerialOld
+      - 解决方案：降低触发CMS的阈值
+    - PromotionFailed
+      - 解决方案：保持老年代有足够的空间
+        - -XX:CMSInitiatingOccupancyFraction 92%：92%的时候会产生FGC，可以降低这个值，让CMS保持老年代足够的空间
+- G1(10ms；jdk1.7才有，使用的是 三色标记+SATB算法)
+- ZGC (1ms，使用的是 ColoredPointers + 写屏障 算法) PK C++
+- Shenandoah
+- Eplison（使用的是 ColoredPointers + 读屏障 算法）
 
 jdk1.8 默认的垃圾回收：PS + ParallelOld
+
+> Parallel New Vs Parallel Scavenge
+- Parallel New 响应时间优先，配合CMS；
+- Parallel Scavenge 吞吐量优先；
+
+
+> 垃圾收集器与内存大小的关系
+- Serial --- 几十兆
+- PS --- 上百兆、几个G
+- CMS --- 20G
+- G1 --- 上百G
+- ZGC --- 4T
 
 #### 6.JVM调优第一步，了解生产环境下的垃圾回收器组合
 
