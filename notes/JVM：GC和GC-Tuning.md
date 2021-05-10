@@ -141,7 +141,9 @@
 - Parallel Scavenge 和 Parallel Old
 - ParNew 和 CMS
 
+
 > 常见的十种垃圾回收器
+
 - Serial（单线程）：干活的时候，所有的工作线程都停止了；
   - STW（stop-the-world，停顿时间），然后清理垃圾
   - safe point：线程停止，不是立马停止，需要找到安全点才能停止；
@@ -158,7 +160,8 @@
 
 - Parallel New
   - STW（stop-the-world，停顿时间），然后清理垃圾
-  - 年轻代 配合CMS的并行回收
+  - 年轻代；
+  - 配合CMS的并行回收
 
   ![ParNew](./pics/GC和GC-Tuning_11.png)
 
@@ -212,7 +215,7 @@ jdk1.8 默认的垃圾回收：PS + ParallelOld
 - -XX:+UseParallelOldGC = Parallel Scavenge + Parallel Old
 - -XX:+UseG1GC = G1
 - Linux中没找到默认GC的查看方法，而windows中会打印UseParallelGC
-  - java +XX:+PrintCommandLineFlags -version
+  - java -XX:+PrintCommandLineFlags -version
   - 通过GC的日志来分辨
 - Linux下1.8版本默认的垃圾回收器到底是什么？
   - 1.8.0_181 默认（看不出来）Copy MarkCompact
