@@ -168,7 +168,7 @@
 - SerialOld 老年代
 - ParallelOld 老年代
 - ConcurrentMarkSweep（CMS使用的是 三色标记+Incremental Update算法）：老年代 并发的， 垃圾回收和应用程序同时运行，降低STW的时间(200ms)
-  - 初始标记（单线程）：STW，只标记GC root上的不可回收的，垃圾不多，短时间能完成；
+  - 初始标记（多线程）：STW，只标记GC root上的不可回收的，垃圾不多，短时间能完成；
   - 并发标记：一边标记，一边清理，最浪费时间；
   - 重新标记（多线程）：STW，并发标记中产生的新垃圾需要重新标记，垃圾不多，短时间完成；
   - 并发清理：会产生新的垃圾（浮动垃圾需等下一次CMS来清掉）
@@ -309,7 +309,7 @@ public class HelloGC {
 - 优化运行JVM运行环境（慢，卡顿）
 - 解决JVM运行过程中出现的各种问题(OOM)
 
-#### 9. 调优，从规划开始
+##### 8.1 调优，从规划开始
 - 调优，从业务场景开始，没有业务场景的调优都是耍流氓
 - 无监控（压力测试，能看到结果），不调优
 - 步骤：
@@ -333,6 +333,187 @@ public class HelloGC {
   专业一点儿问法：要求响应时间100ms
   压测！
   ```
+
+- 案例2：12306遭遇春节大规模抢票应该如何支撑？
+  ```
+  12306应该是中国并发量最大的秒杀网站：
+  号称并发量100W最高
+  CDN -> LVS -> NGINX -> 业务系统 -> 每台机器1W并发（10K问题） 100台机器
+  普通电商订单 -> 下单 ->订单系统（IO）减库存 ->等待用户付款
+  12306的一种可能的模型： 下单 -> 减库存 和 订单(redis kafka) 同时异步进行 ->等付款
+  减库存最后还会把压力压到一台服务器
+  可以做分布式本地库存 + 单独服务器做库存均衡
+  大流量的处理方法：分而治之
+  ```
+
+- 怎么得到一个事务会消耗多少内存？
+  ```
+  弄台机器，看能承受多少TPS？是不是达到目标？扩容或调优，让它达到
+  用压测来确定
+  ```
+
+##### 8.2 优化环境
+1. 有一个50万PV的资料类网站（从磁盘提取文档到内存）原服务器32位，1.5G
+的堆，用户反馈网站比较缓慢，因此公司决定升级，新的服务器为64位，16G
+的堆内存，结果用户反馈卡顿十分严重，反而比以前效率更低了.
+  - 为什么原网站慢?
+很多用户浏览数据，很多数据load到内存，内存不足，频繁GC，STW长，响应时间变慢;
+  - 为什么会更卡顿？
+内存越大，FGC时间越长
+  - 咋办？
+PS -> PN + CMS 或者 G1
+
+
+2. 系统CPU经常100%，如何调优？(面试高频)
+CPU100%那么一定有线程在占用系统资源
+  - 找出哪个进程cpu高（top）
+  - 该进程中的哪个线程cpu高（top -Hp）
+  - 导出该线程的堆栈 (jstack)
+  - 查找哪个方法（栈帧）消耗时间 (jstack)
+  - 工作线程占比高 | 垃圾回收线程占比高
+
+
+3. 系统内存飙高，如何查找问题？（面试高频）
+  - 导出堆内存 (jmap)
+  - 分析 (jhat jvisualvm mat jprofiler ... )
+
+
+4. 如何监控JVM
+  - jstat jvisualvm jprofiler arthas top...
+
+
+##### 8.3 解决JVM中运行中的问题
+###### 一个案例理解常用工具
+
+1. 测试代码
+
+  ```java
+  package com.mashibing.jvm.gc;
+
+  import java.math.BigDecimal;
+  import java.util.ArrayList;
+  import java.util.Date;
+  import java.util.List;
+  import java.util.concurrent.ScheduledThreadPoolExecutor;
+  import java.util.concurrent.ThreadPoolExecutor;
+  import java.util.concurrent.TimeUnit;
+
+  /**
+   * 从数据库中读取信用数据，套用模型，并把结果进行记录和传输
+   */
+
+  public class T15_FullGC_Problem01 {
+
+      private static class CardInfo {
+          BigDecimal price = new BigDecimal(0.0);
+          String name = "张三";
+          int age = 5;
+          Date birthdate = new Date();
+
+          public void m() {}
+      }
+
+      private static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(50,
+              new ThreadPoolExecutor.DiscardOldestPolicy());
+
+      public static void main(String[] args) throws Exception {
+          executor.setMaximumPoolSize(50);
+
+          for (;;){
+              modelFit();
+              Thread.sleep(100);
+          }
+      }
+
+      private static void modelFit(){
+          List<CardInfo> taskList = getAllCardInfo();
+          taskList.forEach(info -> {
+              // do something
+              executor.scheduleWithFixedDelay(() -> {
+                  //do sth with info
+                  info.m();
+
+              }, 2, 3, TimeUnit.SECONDS);
+          });
+      }
+
+      private static List<CardInfo> getAllCardInfo(){
+          List<CardInfo> taskList = new ArrayList<>();
+
+          for (int i = 0; i < 100; i++) {
+              CardInfo ci = new CardInfo();
+              taskList.add(ci);
+          }
+
+          return taskList;
+      }
+  }
+  ```
+
+2. java -Xms200M -Xmx200M -XX:+PrintGC com.mashibing.jvm.gc.T15_FullGC_Problem01
+3. 一般是运维团队首先受到报警信息（CPU Memory）
+4. top命令观察到问题：内存不断增长 CPU占用率居高不下
+5. top -Hp 观察进程中的线程，哪个线程CPU和内存占比高
+6. jps定位具体java进程
+jstack 定位线程状况，重点关注：WAITING BLOCKED
+eg.
+waiting on <0x0000000088ca3310> (a java.lang.Object)
+假如有一个进程中100个线程，很多线程都在waiting on  ，一定要找到是哪个线程持有这把锁
+怎么找？搜索jstack dump的信息，找 ，看哪个线程持有这把锁RUNNABLE
+作业：1：写一个死锁程序，用jstack观察 2 ：写一个程序，一个线程持有锁不释放，其他线程等待
+7. 为什么阿里规范里规定，线程的名称（尤其是线程池）都要写有意义的名称
+怎么样自定义线程池里的线程名称？（自定义ThreadFactory）
+8. jinfo pid
+9. jstat -gc 动态观察gc情况 / 阅读GC日志发现频繁GC / arthas观察 / jconsole/jvisualVM/ Jprofiler（最好用）
+jstat -gc 4655 500 : 每个500个毫秒打印GC的情况
+如果面试官问你是怎么定位OOM问题的？如果你回答用图形界面（错误）
+  - 已经上线的系统不用图形界面用什么？（cmdline arthas）
+  - 图形界面到底用在什么地方？测试！测试的时候进行监控！（压测观察）
+10. jmap - histo 4655 | head -20，查找有多少对象产生
+11. jmap -dump:format=b,file=xxx pid ：
+
+  ```
+  线上系统，内存特别大，jmap执行期间会对进程产生很大影响，甚至卡顿（电商不适合）
+  1：设定了参数HeapDump，OOM的时候会自动产生堆转储文件
+  2：很多服务器备份（高可用），停掉这台服务器对其他服务器不影响
+  3：在线定位(一般小点儿公司用不到)
+  ```
+
+12. java -Xms20M -Xmx20M -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError com.mashibing.jvm.gc.T15_FullGC_Problem01
+13. 使用MAT / jhat /jvisualvm 进行dump文件分析
+https://www.cnblogs.com/baihuitestsoftware/articles/6406271.html
+jhat -J-mx512M xxx.dump
+http://192.168.17.11:7000
+拉到最后：找到对应链接
+可以使用OQL查找特定问题对象
+14. 找到代码的问题
+
+###### jconsole远程连接
+1. 程序启动加入参数：
+
+  ```bash
+  java -Djava.rmi.server.hostname=192.168.17.11 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=11111 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false XXX
+  ```
+
+2. 如果遭遇 Local host name unknown：XXX的错误，修改/etc/hosts文件，把XXX加入进去
+  ```
+  192.168.17.11 basic localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+  ```
+
+3. 关闭linux防火墙（实战中应该打开对应端口）
+
+  ```bash
+  service iptables stop
+  chkconfig iptables off #永久关闭
+  ```
+
+4. windows上打开 jconsole远程连接 192.168.17.11:11111
+
+
+###### jvisualvm远程连接
+
+
 
 ### 参考资料
 
