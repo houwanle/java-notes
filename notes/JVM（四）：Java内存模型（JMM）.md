@@ -29,6 +29,7 @@
   ![JVM（四）：cache line的概念-缓存行对齐-伪共享](./pics/JVM（四）：cacheline的概念-缓存行对齐-伪共享.jpg)
 
     - 验证示例代码
+
     ```java
     package com.lele.juc.c_028_FalseSharing;
     import java.util.Random;
@@ -108,6 +109,7 @@
         }
     }
     ```
+
 #### 乱序问题
 - 乱序问题
 
@@ -118,121 +120,122 @@
 - WCBuffer只有4个位置，如果合并写的时候大于4个位置，则会分两次（比如：合并写6个，一次写6个比两次（每次写3个）效率低）；
 - JUC/029_WriteCombining
   - 示例验证代码
-  ```java
-  package com.lele.juc.c_029_WriteCombining;
 
-  public final class WriteCombining {
+    ```java
+    package com.lele.juc.c_029_WriteCombining;
 
-      private static final int ITERATIONS = Integer.MAX_VALUE;
-      private static final int ITEMS = 1 << 24;
-      private static final int MASK = ITEMS - 1;
+    public final class WriteCombining {
 
-      private static final byte[] arrayA = new byte[ITEMS];
-      private static final byte[] arrayB = new byte[ITEMS];
-      private static final byte[] arrayC = new byte[ITEMS];
-      private static final byte[] arrayD = new byte[ITEMS];
-      private static final byte[] arrayE = new byte[ITEMS];
-      private static final byte[] arrayF = new byte[ITEMS];
+        private static final int ITERATIONS = Integer.MAX_VALUE;
+        private static final int ITEMS = 1 << 24;
+        private static final int MASK = ITEMS - 1;
 
-      public static void main(final String[] args) {
+        private static final byte[] arrayA = new byte[ITEMS];
+        private static final byte[] arrayB = new byte[ITEMS];
+        private static final byte[] arrayC = new byte[ITEMS];
+        private static final byte[] arrayD = new byte[ITEMS];
+        private static final byte[] arrayE = new byte[ITEMS];
+        private static final byte[] arrayF = new byte[ITEMS];
 
-          for (int i = 1; i <= 3; i++) {
-              System.out.println(i + " SingleLoop duration (ns) = " + runCaseOne());
-              System.out.println(i + " SplitLoop  duration (ns) = " + runCaseTwo());
-          }
-      }
+        public static void main(final String[] args) {
 
-      public static long runCaseOne() {
-          long start = System.nanoTime();
-          int i = ITERATIONS;
+            for (int i = 1; i <= 3; i++) {
+                System.out.println(i + " SingleLoop duration (ns) = " + runCaseOne());
+                System.out.println(i + " SplitLoop  duration (ns) = " + runCaseTwo());
+            }
+        }
 
-          while (--i != 0) {
-              int slot = i & MASK;
-              byte b = (byte) i;
-              arrayA[slot] = b;
-              arrayB[slot] = b;
-              arrayC[slot] = b;
-              arrayD[slot] = b;
-              arrayE[slot] = b;
-              arrayF[slot] = b;
-          }
-          return System.nanoTime() - start;
-      }
+        public static long runCaseOne() {
+            long start = System.nanoTime();
+            int i = ITERATIONS;
 
-      public static long runCaseTwo() {
-          long start = System.nanoTime();
-          int i = ITERATIONS;
-          while (--i != 0) {
-              int slot = i & MASK;
-              byte b = (byte) i;
-              arrayA[slot] = b;
-              arrayB[slot] = b;
-              arrayC[slot] = b;
-          }
-          i = ITERATIONS;
-          while (--i != 0) {
-              int slot = i & MASK;
-              byte b = (byte) i;
-              arrayD[slot] = b;
-              arrayE[slot] = b;
-              arrayF[slot] = b;
-          }
-          return System.nanoTime() - start;
-      }
-  }
-  ```
+            while (--i != 0) {
+                int slot = i & MASK;
+                byte b = (byte) i;
+                arrayA[slot] = b;
+                arrayB[slot] = b;
+                arrayC[slot] = b;
+                arrayD[slot] = b;
+                arrayE[slot] = b;
+                arrayF[slot] = b;
+            }
+            return System.nanoTime() - start;
+        }
+
+        public static long runCaseTwo() {
+            long start = System.nanoTime();
+            int i = ITERATIONS;
+            while (--i != 0) {
+                int slot = i & MASK;
+                byte b = (byte) i;
+                arrayA[slot] = b;
+                arrayB[slot] = b;
+                arrayC[slot] = b;
+            }
+            i = ITERATIONS;
+            while (--i != 0) {
+                int slot = i & MASK;
+                byte b = (byte) i;
+                arrayD[slot] = b;
+                arrayE[slot] = b;
+                arrayF[slot] = b;
+            }
+            return System.nanoTime() - start;
+        }
+    }
+    ```
 - 乱序执行的证明：JVM/jmm/Disorder
   - 示例验证代码
-  ```java
-  package com.mashibing.jvm.c3_jmm;
 
-  public class T04_Disorder {
-      private static int x = 0, y = 0;
-      private static int a = 0, b =0;
+    ```java
+    package com.mashibing.jvm.c3_jmm;
 
-      public static void main(String[] args) throws InterruptedException {
-          int i = 0;
-          for(;;) {
-              i++;
-              x = 0; y = 0;
-              a = 0; b = 0;
-              Thread one = new Thread(new Runnable() {
-                  public void run() {
-                      //由于线程one先启动，下面这句话让它等一等线程two. 读着可根据自己电脑的实际性能适当调整等待时间.
-                      //shortWait(100000);
-                      a = 1;
-                      x = b;
-                  }
-              });
+    public class T04_Disorder {
+        private static int x = 0, y = 0;
+        private static int a = 0, b =0;
 
-              Thread other = new Thread(new Runnable() {
-                  public void run() {
-                      b = 1;
-                      y = a;
-                  }
-              });
-              one.start();other.start();
-              one.join();other.join();
-              String result = "第" + i + "次 (" + x + "," + y + "）";
-              if(x == 0 && y == 0) {
-                  System.err.println(result);
-                  break;
-              } else {
-                  //System.out.println(result);
-              }
-          }
-      }
+        public static void main(String[] args) throws InterruptedException {
+            int i = 0;
+            for(;;) {
+                i++;
+                x = 0; y = 0;
+                a = 0; b = 0;
+                Thread one = new Thread(new Runnable() {
+                    public void run() {
+                        //由于线程one先启动，下面这句话让它等一等线程two. 读着可根据自己电脑的实际性能适当调整等待时间.
+                        //shortWait(100000);
+                        a = 1;
+                        x = b;
+                    }
+                });
 
+                Thread other = new Thread(new Runnable() {
+                    public void run() {
+                        b = 1;
+                        y = a;
+                    }
+                });
+                one.start();other.start();
+                one.join();other.join();
+                String result = "第" + i + "次 (" + x + "," + y + "）";
+                if(x == 0 && y == 0) {
+                    System.err.println(result);
+                    break;
+                } else {
+                    //System.out.println(result);
+                }
+            }
+        }
 
-      public static void shortWait(long interval){
-          long start = System.nanoTime();
-          long end;
-          do{
-              end = System.nanoTime();
-          }while(start + interval >= end);
-      }
-  }
-  ```
+        public static void shortWait(long interval){
+            long start = System.nanoTime();
+            long end;
+            do{
+                end = System.nanoTime();
+            }while(start + interval >= end);
+        }
+    }
+    ```
 
 ##### 如何保证特定情况下不乱序
 - 硬件内存保障（X86）
@@ -380,33 +383,33 @@ project structure - project settings - library 添加该jar包
 
 - 如何使用该类：
 
-```java
-package com.lele.jvm.c3_jmm;
+  ```java
+  package com.lele.jvm.c3_jmm;
 
-import com.mashibing.jvm.agent.ObjectSizeAgent;
+  import com.mashibing.jvm.agent.ObjectSizeAgent;
 
-public class T03_SizeOfAnObject {
-   public static void main(String[] args) {
-       System.out.println(ObjectSizeAgent.sizeOf(new Object()));
-       System.out.println(ObjectSizeAgent.sizeOf(new int[] {}));
-       System.out.println(ObjectSizeAgent.sizeOf(new P()));
-   }
+  public class T03_SizeOfAnObject {
+     public static void main(String[] args) {
+         System.out.println(ObjectSizeAgent.sizeOf(new Object()));
+         System.out.println(ObjectSizeAgent.sizeOf(new int[] {}));
+         System.out.println(ObjectSizeAgent.sizeOf(new P()));
+     }
 
-   private static class P {
-                       //8 _markword
-                       //4 _oop指针
-       int id;         //4
-       String name;    //4
-       int age;        //4
+     private static class P {
+                         //8 _markword
+                         //4 _oop指针
+         int id;         //4
+         String name;    //4
+         int age;        //4
 
-       byte b1;        //1
-       byte b2;        //1
+         byte b1;        //1
+         byte b2;        //1
 
-       Object o;       //4
-       byte b3;        //1
-   }
-}
-```
+         Object o;       //4
+         byte b3;        //1
+     }
+  }
+  ```
 
 - markword 64位
 
