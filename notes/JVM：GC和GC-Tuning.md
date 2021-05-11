@@ -454,7 +454,7 @@ public class HelloGC {
 4. top命令观察到问题：内存不断增长 CPU占用率居高不下
 5. top -Hp 观察进程中的线程，哪个线程CPU和内存占比高（命令：top -Hp 进程号）
 6. jps定位具体java进程
-jstack 定位线程状况（jstack -l 线程号），重点关注：WAITING BLOCKED
+jstack 定位线程状况（jstack 运行的线程号），重点关注：WAITING BLOCKED
 eg.
 waiting on <0x0000000088ca3310> (a java.lang.Object)
 假如有一个进程中100个线程，很多线程都在waiting on  ，一定要找到是哪个线程持有这把锁
@@ -462,13 +462,13 @@ waiting on <0x0000000088ca3310> (a java.lang.Object)
 作业：1：写一个死锁程序，用jstack观察 2 ：写一个程序，一个线程持有锁不释放，其他线程等待
 7. 为什么阿里规范里规定，线程的名称（尤其是线程池）都要写有意义的名称
 怎么样自定义线程池里的线程名称？（自定义ThreadFactory）
-8. jinfo pid
+8. jinfo pid 列出进程详细信息
 9. jstat -gc 动态观察gc情况 / 阅读GC日志发现频繁GC / arthas观察 / jconsole/jvisualVM/ Jprofiler（最好用）
 jstat -gc 4655 500 : 每个500个毫秒打印GC的情况
 如果面试官问你是怎么定位OOM问题的？如果你回答用图形界面（错误）
   - 已经上线的系统不用图形界面用什么？（cmdline arthas）
   - 图形界面到底用在什么地方？测试！测试的时候进行监控！（压测观察）
-10. jmap - histo 4655 | head -20，查找有多少对象产生
+10. jmap - histo 4655 | head -20，查找4555进程的前20行，有多少对象产生；
 11. jmap -dump:format=b,file=xxx pid ：
 
   ```
