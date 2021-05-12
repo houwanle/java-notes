@@ -533,9 +533,149 @@ https://www.cnblogs.com/liugh/p/7620336.html （简单做法）
 - watch（watch method）
 - 没有包含的功能：jmap
 
+#### 案例汇总
+OOM产生的原因多种多样，有些程序未必产生OOM，不断FGC（CPU飙高，但内存回收特别少）
+- 硬件升级系统反而卡顿的问题（见上）
+- 线程池不当运用产生OOM问题（见上）
+- smile jira 问题
+  - 实际系统不断重启
+  - 解决问题 加内存 +  G1
+  - 真正的问题在哪儿？不知道
+- tomcat http-header-size 参数设置过大问题
+- lambda表达式导致方法区溢出问题（MethodArea）
+  - LambdaGC.java -XX:MaxMetaspaceSize=9M -XX:PrintGCDetails
+```
+"C:\Program Files\Java\jdk1.8.0_181\bin\java.exe" -XX:MaxMetaspaceSize=9M -XX:+PrintGCDetails "-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2019.1\lib\idea_rt.jar=49316:C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2019.1\bin" -Dfile.encoding=UTF-8 -classpath "C:\Program Files\Java\jdk1.8.0_181\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\deploy.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\access-bridge-64.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\cldrdata.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\dnsns.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\jaccess.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\jfxrt.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\localedata.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\nashorn.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\sunec.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\sunjce_provider.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\sunmscapi.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\sunpkcs11.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\ext\zipfs.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\javaws.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jfxswt.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\management-agent.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\plugin.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\rt.jar;C:\work\ijprojects\JVM\out\production\JVM;C:\work\ijprojects\ObjectSize\out\artifacts\ObjectSize_jar\ObjectSize.jar" com.mashibing.jvm.gc.LambdaGC
+[GC (Metadata GC Threshold) [PSYoungGen: 11341K->1880K(38400K)] 11341K->1888K(125952K), 0.0022190 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+[Full GC (Metadata GC Threshold) [PSYoungGen: 1880K->0K(38400K)] [ParOldGen: 8K->1777K(35328K)] 1888K->1777K(73728K), [Metaspace: 8164K->8164K(1056768K)], 0.0100681 secs] [Times: user=0.02 sys=0.00, real=0.01 secs]
+[GC (Last ditch collection) [PSYoungGen: 0K->0K(38400K)] 1777K->1777K(73728K), 0.0005698 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+[Full GC (Last ditch collection) [PSYoungGen: 0K->0K(38400K)] [ParOldGen: 1777K->1629K(67584K)] 1777K->1629K(105984K), [Metaspace: 8164K->8156K(1056768K)], 0.0124299 secs] [Times: user=0.06 sys=0.00, real=0.01 secs]
+java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at sun.instrument.InstrumentationImpl.loadClassAndStartAgent(InstrumentationImpl.java:388)
+	at sun.instrument.InstrumentationImpl.loadClassAndCallAgentmain(InstrumentationImpl.java:411)
+Caused by: java.lang.OutOfMemoryError: Compressed class space
+	at sun.misc.Unsafe.defineClass(Native Method)
+	at sun.reflect.ClassDefiner.defineClass(ClassDefiner.java:63)
+	at sun.reflect.MethodAccessorGenerator$1.run(MethodAccessorGenerator.java:399)
+	at sun.reflect.MethodAccessorGenerator$1.run(MethodAccessorGenerator.java:394)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at sun.reflect.MethodAccessorGenerator.generate(MethodAccessorGenerator.java:393)
+	at sun.reflect.MethodAccessorGenerator.generateSerializationConstructor(MethodAccessorGenerator.java:112)
+	at sun.reflect.ReflectionFactory.generateConstructor(ReflectionFactory.java:398)
+	at sun.reflect.ReflectionFactory.newConstructorForSerialization(ReflectionFactory.java:360)
+	at java.io.ObjectStreamClass.getSerializableConstructor(ObjectStreamClass.java:1574)
+	at java.io.ObjectStreamClass.access$1500(ObjectStreamClass.java:79)
+	at java.io.ObjectStreamClass$3.run(ObjectStreamClass.java:519)
+	at java.io.ObjectStreamClass$3.run(ObjectStreamClass.java:494)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.io.ObjectStreamClass.<init>(ObjectStreamClass.java:494)
+	at java.io.ObjectStreamClass.lookup(ObjectStreamClass.java:391)
+	at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1134)
+	at java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1548)
+	at java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1509)
+	at java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1432)
+	at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1178)
+	at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:348)
+	at javax.management.remote.rmi.RMIConnectorServer.encodeJRMPStub(RMIConnectorServer.java:727)
+	at javax.management.remote.rmi.RMIConnectorServer.encodeStub(RMIConnectorServer.java:719)
+	at javax.management.remote.rmi.RMIConnectorServer.encodeStubInAddress(RMIConnectorServer.java:690)
+	at javax.management.remote.rmi.RMIConnectorServer.start(RMIConnectorServer.java:439)
+	at sun.management.jmxremote.ConnectorBootstrap.startLocalConnectorServer(ConnectorBootstrap.java:550)
+	at sun.management.Agent.startLocalManagementAgent(Agent.java:137)
+
+```
+
+- 直接内存溢出问题（少见）
+  - 《深入理解java虚拟机》P59，使用Unsafe分配直接内存，或者使用NIO的问题
+- 栈溢出问题（递归调用、循环调用）
+  - Xss设定太小
+- 比较一下这两段程序的异同，分析哪一个是更优的写法：
+
+```java
+// 这种更优
+Object o = null;
+for (int i = 0; i < 100; i++) {
+  o = new Object();
+}
+
+
+for (int i = 0; i < 100; i++) {
+  Object o = new Object();
+}
+```
+
+- 重写finalize引发频繁GC
+  - 小米云，HBase同步系统，系统通过nginx访问超时报警，最后排查，C++程序员重写finalize引发频繁GC问题
+    - 为什么C++程序员会重写finalize？（new delete）
+    - finalize耗时较长（200ms）
+- 如果有一个系统，内存一直消耗不超过10%，但是观察GC日志，发现FGC总是频繁产生，会是什么引起的？
+  - System.gc();(显示调用gc，这个较low)
+- Distuptor有个可以设置链的长度，如果过大，然后对象大，消费完不主动释放，会溢出。
+- 用jvm都会溢出，mycat用崩过，1.6.5某个临时版本解析sql子查询算法有问题，9个exists的联合sql就导致生成几百万的对象。
+- new 大量线程，会产生native thread OOM，（low）应该用线程池；
+  - 解决：减少堆空间（太low了），预留更多内存产生 native thread；
+  - JVM内存占物理内存比例50%~80%
+
+#### 作业
+- -XX:MaxTenuringThreshold控制的是什么？
+A: 对象升入老年代的年龄
+B: 老年代触发FGC时的内存垃圾比例
+- 生产环境中，倾向于将最大堆内存和最小堆内存设置为：（为什么？）
+A: 相同 B：不同
+JDK1.8默认的垃圾回收器是：
+A: ParNew + CMS
+B: G1
+C: PS + ParallelOld
+D: 以上都不是
+- 什么是响应时间优先？
+- 什么是吞吐量优先？
+- ParNew和PS的区别是什么？
+- ParNew和ParallelOld的区别是什么？（年代不同，算法不同）
+- 长时间计算的场景应该选择：A：停顿时间 B: 吞吐量
+- 大规模电商网站应该选择：A：停顿时间 B: 吞吐量
+- HotSpot的垃圾收集器最常用有哪些？
+- 常见的HotSpot垃圾收集器组合有哪些？
+- JDK1.7 1.8 1.9的默认垃圾回收器是什么？如何查看？
+- 所谓调优，到底是在调什么？
+- 如果采用PS + ParrallelOld组合，怎么做才能让系统基本不产生FGC
+- 如果采用ParNew + CMS组合，怎样做才能够让系统基本不产生FGC
+  - 加大JVM内存
+  - 加大Young的比例
+  - 提高Y-O的年龄
+  - 提高S区比例
+  - 避免代码内存泄漏
+- G1是否分代？G1垃圾回收器会产生FGC吗？
+- 如果G1产生FGC，你应该做什么？
+  - 扩内存
+  - 提高CPU性能（回收的快，业务逻辑产生对象的速度固定，垃圾回收越快，内存空间越大）
+  - 降低MixedGC触发的阈值，让MixedGC提早发生（默认是45%）
+- 问：生产环境中能够随随便便的dump吗？
+小堆影响不大，大堆会有服务暂停或卡顿（加live可以缓解），dump前会有FGC
+- 问：常见的OOM问题有哪些？
+栈 堆 MethodArea 直接内存
+
+
+
 ### 参考资料
 
 1. [https://blogs.oracle.com/
     ](https://blogs.oracle.com/jonthecollector/our-collectors)[jonthecollector](https://blogs.oracle.com/jonthecollector/our-collectors)[/our-collectors](https://blogs.oracle.com/jonthecollector/our-collectors)
 2. https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
 3. http://java.sun.com/javase/technologies/hotspot/vmoptions.jsp
+4. JVM调优参考文档：https://docs.oracle.com/en/java/javase/13/gctuning/introduction-garbage-collection-tuning.html#GUID-8A443184-7E07-4B71-9777-4F12947C8184
+5. https://www.cnblogs.com/nxlhero/p/11660854.html 在线排查工具
+6. https://www.jianshu.com/p/507f7e0cc3a3 arthas常用命令
+7. Arthas手册：
+    - 启动arthas java -jar arthas-boot.jar
+    - 绑定java进程
+    - dashboard命令观察系统整体情况
+    - help 查看帮助
+    - help xx 查看具体命令帮助
+8. jmap命令参考： https://www.jianshu.com/p/507f7e0cc3a3
+    - jmap -heap pid
+    - jmap -histo pid
+    - jmap -clstats pid
