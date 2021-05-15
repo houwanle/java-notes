@@ -200,6 +200,9 @@
     - 压缩空闲空间不会延长GC的暂停时间；
     - 更易预测的GC暂停时间；
     - 适用不需要实现很高的吞吐量的场景；
+    - 新老年代比例：5% ~ 60%
+      - 一般不用手工指定，也不要手工指定，因为这是G1预测停顿时间的基准；
+    - humongous object：超过单个region的50%；也有跨越多个region的
   - 基本概念：
     - Card Table（GC中）
       - 由于做YGC时，需要扫描整个old区，效率非常低，所以JVM设计了CardTable，如果一个old区CardTable中有对象指向Y区，就将它设为Dirty，下次扫描时，只需要扫描Dirty Card；
@@ -213,7 +216,23 @@
 
         ![JVM：RSet模型](./pics/JVM：RSet模型.png)
 
-        
+  - GC何时触发
+    - YGC -> 到达45%(MixedGC默认阈值) -> MixedGC是G1的正常回收过程
+    - YGC：Eden区空间不足；多线程并行执行；
+    - FGC：Old区空间不足；System.gc()；G1的FGC用的是serial
+  - 如果产生FGc，你应该做什么？
+    - 扩内存
+    - 提高CPU性能（回收的快，业务逻辑产生对象的速度固定，垃圾回收越快，内存空间越大）
+    - 降低MixedGC（相当于CMS）触发的阈值，让MixedGC提早发生（默认是45%）
+      - XX:InitiatingHeapOccupacyPercent
+        - 默认值45%
+        - 当对象超过这个值时，启动MIxedGC
+      - MixedGC的过程
+        - 初始标记 STW
+        - 并发标记
+        - 最终标记 STW（重新标记）
+        - 筛选回收 STW（并行）：筛选最需要回收的
+
 - ZGC (1ms，使用的是 ColoredPointers + 写屏障 算法) PK C++
 - Shenandoah
 - Eplison（使用的是 ColoredPointers + 读屏障 算法）
