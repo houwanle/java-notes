@@ -28,13 +28,13 @@
 #### JVM stacks
 - Frame  -- 每个方法对应一个栈帧
   - Local Variable Table：局部变量表
-  - Operand Stack
+  - Operand Stack：操作数栈
     - 对于long的处理（store and load），多数虚拟机的实现都是原子的
     - jls 17.7，没必要加volatile
-  - Dynamic Linking
+  - Dynamic Linking：动态链接
     - https://blog.csdn.net/qq_41813060/article/details/88379473
     - jvms 2.6.3
-  - return address
+  - return address：方法出口
     - a() -> b()，方法a调用了方法b，b方法的返回值放到什么地方
 
 #### Heap

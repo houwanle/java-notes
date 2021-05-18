@@ -244,6 +244,7 @@ jdk1.8 默认的垃圾回收：PS + ParallelOld
 > Parallel New Vs Parallel Scavenge
 - Parallel New 响应时间优先，配合CMS；
 - Parallel Scavenge 吞吐量优先；
+  - 高吞吐量可以高效的利用CPU时间，尽快完成程序的运算任务，（意味着暂停时间可能长一些）主要适合那些在后台计算而不需要交互的任务。
 
 
 > 垃圾收集器与内存大小的关系
