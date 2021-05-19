@@ -20,6 +20,8 @@
 
 ### MySQL
 - [MySQL：数据库设计规范](./notes/MySQL：数据库设计规范.md)
+- [MySQL调优（一）：概述](./notes/MySQL调优（一）：概述.md)
+- [MySQL调优（二）：performance_schema详解](./notes/MySQL调优（二）：performance_schema详解)
 
 ### Docker
 - [Docker：CentOS7下docker的安装与卸载](./notes/Docker：CentOS7下docker的安装与卸载.md)
