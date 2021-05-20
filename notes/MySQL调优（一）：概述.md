@@ -224,9 +224,132 @@ text不设置长度，当不知道属性的最大长度时，适合用text;按�
 - 当我们的表中存在类似于 TEXT 或者是很大的 VARCHAR类型的大字段的时候，如果我们大部分访问这张表的时候都不需要这个字段，我们就该义无反顾的将其拆分到另外的独立表中，以减少常用数据所占用的存储空间。这样做的一个明显好处就是每个数据块中可以存储的数据条数可以大大增加，既减少物理 IO 次数，也能大大提高内存中的缓存命中率。
 
 ### 执行计划
-
+> MySQL调优（三）：MySQL执行计划.md
 
 ### 通过索引进行优化
+#### 1. 索引基本知识
+
+##### 1.1 索引的优点
+- 大大减少了服务器需要扫描的数据量；
+- 帮助服务器避免排序和临时表；
+- 将随机io变成顺序io；
+
+##### 1.2 索引的用处
+- 快速查找匹配WHERE子句的行；
+- 从consideration中消除行,如果可以在多个索引之间进行选择，mysql通常会使用找到最少行的索引；
+- 如果表具有多列索引，则优化器可以使用索引的任何最左前缀来查找行；
+- 当有表连接的时候，从其他表检索行数据；
+- 查找特定索引列的min或max值；
+- 如果排序或分组时在可用索引的最左前缀上完成的，则对表进行排序和分组；
+- 在某些情况下，可以优化查询以检索值而无需查询数据行；
+
+##### 1.3 索引的分类
+- 主键索引：值不能为空
+- 唯一索引：值可以为空，效率与主键索引一样；
+- 普通索引
+- 全文索引：一般是char、varchar上用
+- 组合索引
+
+##### 1.4 面试技术名词
+- 回表
+  - 普通列的索引（B+） -> 主键（B+） -> 取出整行记录
+- 覆盖索引
+  - 能用覆盖索引，尽量使用覆盖索引；
+- 最左匹配：必须要先有最左边，才能查右边
+- 索引下推
+  - 优点：在非主键索引上的优化，可以有效减少回表的次数，大大提升了查询的效率。
+  - 关闭索引下推可以使用如下命令：
+
+  ```bash
+  set optimizer_switch='index_condition_pushdown=off';
+  ```
+
+
+索引页分裂？
+索引页合并？
+##### 1.5 索引采用的数据结构
+- 哈希表
+- B+树
+
+##### 1.6 索引匹配方式
+
+  ```sql
+  create table staffs(
+
+      id int primary key auto_increment,
+
+      name varchar(24) not null default '' comment '姓名',
+
+      age int not null default 0 comment '年龄',
+
+      pos varchar(20) not null default '' comment '职位',
+
+      add_time timestamp not null default current_timestamp comment '入职时间'
+
+    ) charset utf8 comment '员工记录表';
+
+  -----------
+  alter table staffs add index idx_nap(name, age, pos);
+  ```
+
+- 全值匹配：全值匹配指的是和索引中的所有列进行匹配
+
+  ```sql
+  explain select * from staffs where name = 'July' and age = '23' and pos = 'dev';
+  ```
+
+- 匹配最左前缀：只匹配前面的几列
+
+  ```sql
+  explain select * from staffs where name = 'July' and age = '23';
+
+  explain select * from staffs where name = 'July';
+  ```
+
+- 匹配列前缀：可以匹配某一列的值的开头部分；
+
+  ```sql
+  explain select * from staffs where name like 'J%';
+
+  explain select * from staffs where name like '%y';
+  ```
+
+- 匹配范围值：可以查找某一个范围的数据；
+
+  ```sql
+  explain select * from staffs where name > 'Mary';
+  ```
+
+- 精确匹配某一列并范围匹配另外一列：可以查询第一列的全部和第二列的部分；
+
+  ```sql
+  explain select * from staffs where name = 'July' and age > 25;
+  ```
+
+- 只访问索引的查询：查询的时候只需要访问索引，不需要访问数据行，本质上就是覆盖索引；
+
+  ```sql
+  explain select name,age,pos from staffs where name = 'July' and age = 25 and pos = 'dev';
+  ```
+
+#### 2. 哈希索引
+
+
+#### 3. 组合索引
+
+
+#### 4. 聚簇索引与非聚簇索引
+
+#### 5. 覆盖索引
+
+#### 6. 优化小细节
+
+
+#### 7. 索引监控
+
+
+#### 8. 简单案例
+
 
 
 ### 查询优化
