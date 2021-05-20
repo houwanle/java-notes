@@ -13,16 +13,18 @@
 - [JVM（四）：Java内存模型（JMM）](./notes/JVM（四）：Java内存模型（JMM）.md)
 - [JVM（五）：Java运行时数据区和常用指令](./notes/JVM（五）：Java运行时数据区和常用指令.md)
 
-### Linux
-- [Linux：查看Linux版本信息](./notes/Linux：查看Linux版本信息.md)
-- [Linux：CentOS7系统语言切换](./notes/Linux：CentOS7系统语言切换.md)
-- [Linux：CentOS7系统时间修改](./notes/Linux：CentOS7系统时间修改.md)
-
 ### MySQL
 - [MySQL：数据库设计规范](./notes/MySQL：数据库设计规范.md)
 - [MySQL调优（一）：概述](./notes/MySQL调优（一）：概述.md)
 - [MySQL调优（二）：performance_schema详解](./notes/MySQL调优（二）：performance_schema详解.md)
 - [MySQL调优（三）：MySQL执行计划](./notes/MySQL调优（三）：MySQL执行计划.md)
+- [MySQL调优（四）：sakila数据库说明](./notes/MySQL调优（四）：sakila数据库说明.md)
+
+### Linux
+- [Linux：查看Linux版本信息](./notes/Linux：查看Linux版本信息.md)
+- [Linux：CentOS7系统语言切换](./notes/Linux：CentOS7系统语言切换.md)
+- [Linux：CentOS7系统时间修改](./notes/Linux：CentOS7系统时间修改.md)
+
 
 ### Docker
 - [Docker：CentOS7下docker的安装与卸载](./notes/Docker：CentOS7下docker的安装与卸载.md)
