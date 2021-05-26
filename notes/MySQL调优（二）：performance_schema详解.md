@@ -157,6 +157,7 @@ select * from file_instances limit 20;
 
 ### 5. 常用配置项的参数说明
 - 启动选项
+
 ```sql
 /*
 是否在mysql server启动时就开启events_statements_current表的记录功能(该表记录当前的语句事件信息)，启动之后也可以在setup_consumers表中使用UPDATE语句进行动态更新setup_consumers配置表中的events_statements_current配置项，默认值为TRUE
