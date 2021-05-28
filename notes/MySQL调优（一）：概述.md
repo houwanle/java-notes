@@ -761,3 +761,100 @@ explain select film.film_id from film inner join film_actor using(film_id
     - 当需要排序的列的总大小超过max_length_for_sort_data定义的字节，mysql会选择双次排序，反之使用单次排序，当然，用户可以设置此参数的值来选择排序的方式。
 
 #### 4. 优化特定类型的查询
+##### 4.1 优化count()查询
+count()是特殊的函数，有两种不同的作用，一种是某个列值的数量，也可以统计行数。
+
+- 总有人认为myisam的count函数比较快，这是有前提条件的，只有没有任何where条件的count(*)才是比较快的；
+- 使用近似值：在某些应用场景中，不需要完全精确的值，可以参考使用近似值来代替，比如可以使用explain来获取近似的值；其实在很多OLAP的应用中，需要计算某一个列值的基数，有一个计算近似值的算法叫hyperloglog。
+- 更复杂的优化：一般情况下，count()需要扫描大量的行才能获取精确的数据，其实很难优化，在实际操作的时候可以考虑使用索引覆盖扫描，或者增加汇总表，或者增加外部缓存系统。
+
+##### 4.2 优化关联查询
+- 确保on或者using子句中的列上有索引，在创建索引的时候就要考虑到关联的顺序；
+  - 当表A和表B使用列C关联的时候，如果优化器的关联顺序是B、A，那么就不需要再B表的对应列上建上索引，没有用到的索引只会带来额外的负担，一般情况下来说，只需要在关联顺序中的第二个表的相应列上创建索引；
+- 确保任何的groupby和order by中的表达式只涉及到一个表中的列，这样mysql才有可能使用索引来优化这个过程；
+
+##### 4.3 优化子查询
+子查询的优化最重要的优化建议是尽可能使用关联查询代替；
+
+##### 4.4 优化limit分页
+在很多应用场景中我们需要将数据进行分页，一般会使用limit加上偏移量的方法实现，同时加上合适的orderby 的子句，如果这种方式有索引的帮助，效率通常不错，否则的化需要进行大量的文件排序操作，还有一种情况，当偏移量非常大的时候，前面的大部分数据都会被抛弃，这样的代价太高。
+要优化这种查询的话，要么是在页面中限制分页的数量，要么优化大偏移量的性能;
+
+优化此类查询的最简单的办法就是尽可能地使用覆盖索引，而不是查询所有的列；
+
+```sql
+select film_id,description from film order by title limit 50,5
+
+explain select film.film_id,film.description from film inner join (select film_id from film order by title limit 50,5) as lim using(film_id);
+```
+
+##### 4.5 优化union查询
+mysql总是通过创建并填充临时表的方式来执行union查询，因此很多优化策略在union查询中都没法很好的使用。经常需要手工的将where、limit、order by等子句下推到各个子查询中，以便优化器可以充分利用这些条件进行优化。
+
+除非确实需要服务器消除重复的行，否则一定要使用union all，因此没有all关键字，mysql会在查询的时候给临时表加上distinct的关键字，这个操作的代价很高。
+
+##### 4.6 推荐使用用户自定义变量
+用户自定义变量是一个容易被遗忘的mysql特性，但是如果能够用好，在某些场景下可以写出非常高效的查询语句，在查询中混合使用过程化和关系话逻辑的时候，自定义变量会非常有用。
+用户自定义变量是一个用来存储内容的临时容器，在连接mysql的整个过程中都存在。
+
+- 自定义变量的使用
+
+  ```sql
+  set @one :=1
+
+  set @min_actor :=(select min(actor_id) from actor)
+
+  set @last_week :=current_date-interval 1 week;
+  ```
+
+- 自定义变量的限制
+  1. 无法使用查询缓存;
+  2. 不能在使用常量或者标识符的地方使用自定义变量，例如表名、列名或者limit子句;
+  3. 用户自定义变量的生命周期是在一个连接中有效，所以不能用它们来做连接间的通信;
+  4. 不能显式地声明自定义变量地类型;
+  5. mysql优化器在某些场景下可能会将这些变量优化掉，这可能导致代码不按预想地方式运行;
+  6. 赋值符号：=的优先级非常低，所以在使用赋值表达式的时候应该明确的使用括号;
+  7. 使用未定义变量不会产生任何语法错误;
+- 自定义变量的使用案例
+  - 优化排名语句
+    1. 在给一个变量赋值的同时使用这个变量
+
+      ```sql
+      select actor_id,@rownum:=@rownum+1 as rownum from actor limit 10;
+      ```
+
+    2. 查询获取演过最多电影的前10名演员，然后根据出演电影次数做一个排名;
+
+      ```sql
+      select actor_id,count(*) as cnt from film_actor group by actor_id order by cnt desc limit 10;
+      ```
+  - 避免重新查询刚刚更新的数据
+    - 当需要高效的更新一条记录的时间戳，同时希望查询当前记录中存放的时间戳是什么;
+
+      ```sql
+      update t1 set  lastUpdated=now() where id =1;
+      select lastUpdated from t1 where id =1;
+
+
+      update t1 set lastupdated = now() where id = 1 and @now:=now();
+      select @now;
+      ```
+
+  - 确定取值的顺序
+    - 在赋值和读取变量的时候可能是在查询的不同阶段
+
+    ```sql
+    set @rownum:=0;
+    select actor_id,@rownum:=@rownum+1 as cnt from actor where @rownum<=1;
+    --因为where和select在查询的不同阶段执行，所以看到查询到两条记录，这不符合预期
+
+
+    set @rownum:=0;
+    select actor_id,@rownum:=@rownum+1 as cnt from actor where @rownum<=1 order by first_name
+    --当引入了orde;r by之后，发现打印出了全部结果，这是因为order by引入了文件排序，而where条件是在文件排序操作之前取值的
+
+
+    --解决这个问题的关键在于让变量的赋值和取值发生在执行查询的同一阶段：
+    set @rownum:=0;
+    select actor_id,@rownum as cnt from actor where (@rownum:=@rownum+1)<=1;
+    ```
