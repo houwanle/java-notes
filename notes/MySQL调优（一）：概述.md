@@ -835,7 +835,6 @@ mysql总是通过创建并填充临时表的方式来执行union查询，因此�
       update t1 set  lastUpdated=now() where id =1;
       select lastUpdated from t1 where id =1;
 
-
       update t1 set lastupdated = now() where id = 1 and @now:=now();
       select @now;
       ```
@@ -843,18 +842,16 @@ mysql总是通过创建并填充临时表的方式来执行union查询，因此�
   - 确定取值的顺序
     - 在赋值和读取变量的时候可能是在查询的不同阶段
 
-    ```sql
-    set @rownum:=0;
-    select actor_id,@rownum:=@rownum+1 as cnt from actor where @rownum<=1;
-    --因为where和select在查询的不同阶段执行，所以看到查询到两条记录，这不符合预期
+      ```sql
+      set @rownum:=0;
+      select actor_id,@rownum:=@rownum+1 as cnt from actor where @rownum<=1;
+      --因为where和select在查询的不同阶段执行，所以看到查询到两条记录，这不符合预期
 
+      set @rownum:=0;
+      select actor_id,@rownum:=@rownum+1 as cnt from actor where @rownum<=1 order by first_name
+      --当引入了orde;r by之后，发现打印出了全部结果，这是因为order by引入了文件排序，而where条件是在文件排序操作之前取值的
 
-    set @rownum:=0;
-    select actor_id,@rownum:=@rownum+1 as cnt from actor where @rownum<=1 order by first_name
-    --当引入了orde;r by之后，发现打印出了全部结果，这是因为order by引入了文件排序，而where条件是在文件排序操作之前取值的
-
-
-    --解决这个问题的关键在于让变量的赋值和取值发生在执行查询的同一阶段：
-    set @rownum:=0;
-    select actor_id,@rownum as cnt from actor where (@rownum:=@rownum+1)<=1;
-    ```
+      --解决这个问题的关键在于让变量的赋值和取值发生在执行查询的同一阶段：
+      set @rownum:=0;
+      select actor_id,@rownum as cnt from actor where (@rownum:=@rownum+1)<=1;
+      ```
