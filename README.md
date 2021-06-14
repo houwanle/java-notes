@@ -19,6 +19,7 @@
 - [MySQL调优（二）：performance_schema详解](./notes/MySQL调优（二）：performance_schema详解.md)
 - [MySQL调优（三）：MySQL执行计划](./notes/MySQL调优（三）：MySQL执行计划.md)
 - [MySQL调优（四）：sakila数据库说明](./notes/MySQL调优（四）：sakila数据库说明.md)
+- [MySQL的锁机制](./notes/MySQL的锁机制.md)
 
 ### Linux
 - [Linux：查看Linux版本信息](./notes/Linux：查看Linux版本信息.md)
