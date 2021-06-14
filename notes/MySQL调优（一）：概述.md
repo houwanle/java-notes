@@ -1304,13 +1304,13 @@ PARTITION p2 VALUES LESS THAN(15)
 #### 3. connection
 - max_connections：mysql的最大连接数，如果数据库的并发连接请求比较大，应该调高该值；
 - max_user_connections：限制每个用户的连接个数；
-- back_log：mysql能够暂存的连接数量，当mysql的线程在一个很短时间内得到非常多的连接请求时，就会起作用，如果mysql的连接数量达到max_connections时，新的请求会被存储在堆栈中，以等待某一个连接释放资源，如果等待连接的数量超过back_log,则不再接受连接资源；
-- wait_timeout：mysql在关闭一个非交互的连接之前需要等待的时长；
-- interactive_timeout：关闭一个交互连接之前需要等待的秒数；
+- back_log：mysql能够暂存的连接数量，当mysql的线程在一个很短时间内得到非常多的连接请求时，就会起作用，如果mysql的连接数量达到max_connections时，新的请求会被存储在堆栈中，以等待某一个连接释放资源，如果等待连接的数量超过back_log,则不再接受连接资源；该值设置不宜过大；
+- wait_timeout：mysql在关闭一个非交互的连接之前需要等待的时长；JDBC是非交互式的
+- interactive_timeout：关闭一个交互连接之前需要等待的秒数；命令行是交互式的
 
 #### 4. log
 - log_error：指定错误日志文件名称，用于记录当mysqld启动和停止时，以及服务器在运行中发生任何严重错误时的相关信息；
-- log_bin：指定二进制日志文件名称，用于记录对数据造成更改的所有查询语句；
+- log_bin：指定二进制日志文件名称，用于记录对数据造成更改的所有查询语句；主从复制；
 - binlog_do_db：指定将更新记录到二进制日志的数据库，其他所有没有显式指定的数据库更新将忽略，不记录在日志中；
 - binlog_ignore_db：指定不将更新记录到二进制日志的数据库；
 - sync_binlog：指定多少次写日志后同步磁盘；
