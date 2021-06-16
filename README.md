@@ -21,6 +21,9 @@
 - [MySQL调优（四）：sakila数据库说明](./notes/MySQL调优（四）：sakila数据库说明.md)
 - [MySQL的锁机制](./notes/MySQL的锁机制.md)
 
+### 多线程与高并发
+- [多线程与高并发：synchronize新版深入详解](./notes/多线程与高并发：synchronize新版深入详解.md)
+
 ### Linux
 - [Linux：查看Linux版本信息](./notes/Linux：查看Linux版本信息.md)
 - [Linux：CentOS7系统语言切换](./notes/Linux：CentOS7系统语言切换.md)

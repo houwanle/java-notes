@@ -166,3 +166,70 @@ _start:
   - （不采用锁总线的方式）
 
 ### 4. markword
+#### 对象在内存中的布局（JVM hotspot实现）
+- 8字节markword
+- 4字节class pointer（默认开启压缩，压缩之后是4字节）
+- 成员变量（int占4字节）
+
+**要求对象8字节对齐：对象的大小（字节数）必须是8的整数倍，若不够则凑成8的整数倍**
+
+### 5. 工具：JOL = Java Object Layout
+
+```xml
+<dependencies>
+    <!-- https://mvnrepository.com/artifact/org.openjdk.jol/jol-core -->
+    <dependency>
+        <groupId>org.openjdk.jol</groupId>
+        <artifactId>jol-core</artifactId>
+        <version>0.9</version>
+    </dependency>
+</dependencies>
+```
+
+```java
+import org.openjdk.jol.info.ClassLayout;
+
+/**
+ * 加入锁处于偏向状态，这时来了竞争者，那么它的状态是什么？
+ */
+
+public class HelloJOL {
+  public static void main(String[] args) throws Exception {
+    //Thread.sleep(5000);
+
+    Object o = new Object();
+    System.out.println(ClassLayout.parseInstance(o).toPrintable());
+
+    synchronized(o) {
+      System.out.println(ClassLayout.parseInstance(o).toPrintable());
+    }
+  }
+}
+```
+
+- 给对象上锁，在hotspot中实现是修改对象的markword；
+
+jdk8u: markOop.hpp
+
+```java
+// Bit-format of an object header (most significant first, big endian layout below):
+//
+//  32 bits:
+//  --------
+//             hash:25 ------------>| age:4    biased_lock:1 lock:2 (normal object)
+//             JavaThread*:23 epoch:2 age:4    biased_lock:1 lock:2 (biased object)
+//             size:32 ------------------------------------------>| (CMS free block)
+//             PromotedObject*:29 ---------->| promo_bits:3 ----->| (CMS promoted object)
+//
+//  64 bits:
+//  --------
+//  unused:25 hash:31 -->| unused:1   age:4    biased_lock:1 lock:2 (normal object)
+//  JavaThread*:54 epoch:2 unused:1   age:4    biased_lock:1 lock:2 (biased object)
+//  PromotedObject*:61 --------------------->| promo_bits:3 ----->| (CMS promoted object)
+//  size:64 ----------------------------------------------------->| (CMS free block)
+//
+//  unused:25 hash:31 -->| cms_free:1 age:4    biased_lock:1 lock:2 (COOPs && normal object)
+//  JavaThread*:54 epoch:2 cms_free:1 age:4    biased_lock:1 lock:2 (COOPs && biased object)
+//  narrowOop:32 unused:24 cms_free:1 unused:4 promo_bits:3 ----->| (COOPs && CMS promoted object)
+//  unused:21 size:35 -->| cms_free:1 unused:7 ------------------>| (COOPs && CMS free block)
+```
