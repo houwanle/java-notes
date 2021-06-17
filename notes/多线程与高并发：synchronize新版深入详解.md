@@ -233,3 +233,22 @@ jdk8u: markOop.hpp
 //  narrowOop:32 unused:24 cms_free:1 unused:4 promo_bits:3 ----->| (COOPs && CMS promoted object)
 //  unused:21 size:35 -->| cms_free:1 unused:7 ------------------>| (COOPs && CMS free block)
 ```
+
+### 7. 锁升级过程
+#### 7.1 JDK8 markword实现表：
+
+![多线程与高并发：markword-64](./pics/多线程与高并发：markword-64.png)
+
+- 偏向锁：上偏向锁，指的就是，把markword的线程ID改为自己线程ID的过程；
+  - 偏向锁不可重偏向 批量偏向 批量撤销；
+
+**用户空间锁 VS 重量级锁**
+- 偏向锁、自旋锁 都是在用户空间完成；
+- 重量级锁是需要向内核申请；
+
+
+- 锁升级初步
+
+![多线程与高并发：锁升级初步](./pics/多线程与高并发：锁升级初步.png)
+
+  - new -> 普通对象 -> 加synchronize -> 偏向锁 -> 轻度竞争 -> 轻量级锁（自旋锁或无锁） -> 竞争加剧 -> 重量级锁
