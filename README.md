@@ -24,6 +24,9 @@
 ### 多线程与高并发
 - [多线程与高并发：synchronize新版深入详解](./notes/多线程与高并发：synchronize新版深入详解.md)
 
+### Elasticsearch
+- [ES（一）：Elasticsearch核心概念](./notes/ES（一）：Elasticsearch核心概念.md)
+
 ### Linux
 - [Linux：查看Linux版本信息](./notes/Linux：查看Linux版本信息.md)
 - [Linux：CentOS7系统语言切换](./notes/Linux：CentOS7系统语言切换.md)
