@@ -81,20 +81,37 @@
   DELETE /index/type/id/
   ```
 
-  ### 4. ES 分布式文档系统
+### 4. ES 分布式文档系统
 
-  #### 4.1 ES 如何实现高可用（生产环境均为一台机器一个节点）
-  - ES 在分配单个索引的分片时会将每个分片尽可能分配到更多的节点上。但是，实际情况取决于集群拥有的分片和索引的数量以及它们的大小，不一定总是均匀地分布。
-  - ES 不允许 Primary 和它的 Replica 放在同一个节点中，并且同一个节点不接受完全相同的两个 Replica。
-  - 同一个节点允许多个索引的分片同时存在。
+#### 4.1 ES 如何实现高可用（生产环境均为一台机器一个节点）
+- ES 在分配单个索引的分片时会将每个分片尽可能分配到更多的节点上。但是，实际情况取决于集群拥有的分片和索引的数量以及它们的大小，不一定总是均匀地分布。
+- ES 不允许 Primary 和它的 Replica 放在同一个节点中，并且同一个节点不接受完全相同的两个 Replica。
+- 同一个节点允许多个索引的分片同时存在。
 
-  #### 4.2 容错机制
-  - 容错：
-    - 傻X的代码你能看懂，牛X的代码你能看懂；
-    - 只能看懂自己的代码，容错性低；
-    - PS：各种情况（支持的情况越多，容错性越好）下，都能保证work正常运行；
-    - 换到 ES 上就是在局部出错异常的情况下，保证服务正常运行并且有自行恢复能力；
-  - ES-node
-    - Master：主节点，每个集群都有且只有一个；
-      - 尽量避免Master节点 node.data ＝ true；
-    - voting：投票节点
+#### 4.2 容错机制
+- 容错：
+  - 傻X的代码你能看懂，牛X的代码你能看懂；
+  - 只能看懂自己的代码，容错性低；
+  - PS：各种情况（支持的情况越多，容错性越好）下，都能保证work正常运行；
+  - 换到 ES 上就是在局部出错异常的情况下，保证服务正常运行并且有自行恢复能力；
+- ES-node
+  - Master：主节点，每个集群都有且只有一个；
+    - 尽量避免Master节点 node.data ＝ true；
+  - voting：投票节点
+    - Node.voting_only = true（仅投票节点，即使配置了 data.master = true，也不会参选，但是仍然可以作为数据节点）
+  - coordinating：协调节点
+    - 每一个节点都隐式的是一个协调节点，如果同时设置了 data.master = false 和 data.data = false，那么此节点将成为仅协调节点；
+  - Master-eligible node（候选节点）
+  - Data node（数据节点）
+  - Ingest node
+  - Machine learning node（机器学习节点）
+- 两个配置：node.master 和 node.data
+  - node.master = true  node.data = true：这是 ES 节点默认配置，既作为候选节点又作为数据节点，这样的节点一旦被选举为 Master 节点应该只承担较为轻量级的任务，比如创建删除索引，分片均衡等。
+  - node.master = true node.data = false：只作为候选节点，不作为数据节点，可参选 Master 节点，当选后成为真正的 Master 节点；
+  - node.master = false  node.data = false：既不当选节点，也不作为数据节点，那就是仅协调节点，负责负载均衡；
+  - node.master = false  node.data = true：不作为候选节点，但是作为数据节点，这样的节点主要负责数据存储和查询服务。
+- 图解容错机制
+  - 第一步：Master 选举（假如宕机节点是master）
+    - 脑裂：可能产生多个 Master 节点；
+    - 解决：discovery.zen.minimum_master_nodes=N/2+1
+  - 第二步：Replica容错，新的（或者原有）Master节点会将丢失的Primary对应的某个副本提升为Primary；
