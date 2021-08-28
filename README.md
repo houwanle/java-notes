@@ -23,9 +23,10 @@
 
 ### 多线程与高并发
 - [多线程与高并发：synchronize新版深入详解](./notes/多线程与高并发：synchronize新版深入详解.md)
+- [多线程与高并发（一）：基础概念](./notes/多线程与高并发（一）：基础概念.md)
 
-### Elasticsearch
-- [ES（一）：Elasticsearch核心概念](./notes/ES（一）：Elasticsearch核心概念.md)
+### Elastic Stack
+
 
 ### Linux
 - [Linux：查看Linux版本信息](./notes/Linux：查看Linux版本信息.md)
