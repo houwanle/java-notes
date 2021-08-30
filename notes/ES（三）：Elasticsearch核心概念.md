@@ -36,8 +36,29 @@
 - Redis、Memcached、MongoDB
 - Elasticsearch、Solr、Splunk
 
+#### 4.1 MySQL的索引结构
 
-### 1. Lucene简介
+  ![ES（三）：B树](./pics/ES（三）：B树.png)
+
+  ![ES（三）：B+树](./pics/ES（三）：B+树.png)
+
+- 数据放在叶子结点（有序链表）
+
+#### 4.2 MySQL索引能解决大数据检索的问题吗？
+- 索引往往字段很长，如果使用 B+树，树可能很深，IO很可怕；
+- 索引可能会失效；
+- 精准度查；
+
+
+### 5. Lucene简介
+- Lucene是一个成熟的全文检索库，由Java语言编写，具有高性能、可伸缩的特点，并且开源、免费；
+- Lucene的作者Doug Cutting是资深的全文检索专家，Lucene最开始发布在他本人的主页上，2001年10月贡献给Apache，称为Apache基金会的一个子项目；
+- Lucene是一个IR库（Information Retrieval library），后来才由Shay Banon在其基础上开发了Elasticsearch；
+
+#### 5.1 全文检索
+- 全文检索：索引系统通过扫描文章中的每一个词，对其创建索引，指明在文章中出现的次数和位置，当用户查询时，索引系统就会根据事先建立的索引进行查找，并将查找的结果反馈给用户的检索方式；
+
+  ![ES（三）：全文检索](./pics/ES（三）：全文检索.png)
 
 
 ### 2. Elasticsearch概念
