@@ -37,4 +37,9 @@
 
   ![ES（四）：FSA有限状态接收机_3](./pics/ES（四）：FSA有限状态接收机_3.png)
 
-- FST：Finit state Transducers
+##### 1.2.4 FST 有限状态机
+> FST 最重要的功能是可以实现Key到value的映射，相当于HashMap<Key,Value>。FST的查询速度比HashMap要慢一点，但FST的内存消耗要比HashMap少很多，FST在Lucene中被大量使用，例如倒排索引的存储、同义词词典的存储、搜索关键字建议等。
+
+  ![ES（四）：FST的构建过程_1](./pics/ES（四）：FST的构建过程_1.png)
+
+  ![ES（四）：FST的构建过程_2](./pics/ES（四）：FST的构建过程_2.png)
