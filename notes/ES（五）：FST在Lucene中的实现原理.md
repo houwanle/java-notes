@@ -35,3 +35,7 @@ ES中的mapping有点类似于RDB中“表结构”的概念，在MySQL中，表
 
 ##### 2.4 特殊类型
 - 1.IP地址：ip用于IPv4和IPv6地址
+- 2.completion：提供自动完成建议
+- 3.tocken_count：计算字符串中令牌的数量
+- 4.murmur3：在索引时计算值的哈希并将其存储在索引中
+- 
