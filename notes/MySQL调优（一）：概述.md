@@ -1074,6 +1074,7 @@ PARTITION BY RANGE ( UNIX_TIMESTAMP(report_updated) ) (
   - 案例：
 
   ```sql
+  
   --不分区的表
   CREATE TABLE no_part_tab
   (id INT DEFAULT NULL,
