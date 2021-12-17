@@ -1,4 +1,4 @@
-## 多线程与高并发：synchronize新版深入详解
+## 多线程与高并发（七）：synchronize新版深入详解
 
 ### 1. 用户态和内核态
 Intel指令分为 ring0~ring3 级；
