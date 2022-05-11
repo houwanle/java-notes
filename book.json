@@ -1,3 +1,7 @@
 {
-  "plugins":["expandable-chapters","-lunr"]
+  "plugins":[
+    "expandable-chapters",
+    "-lunr",
+    "splitter"
+  ]
 }
