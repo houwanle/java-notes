@@ -41,6 +41,8 @@
 - [Linux：CentOS7系统语言切换](./notes/Linux：CentOS7系统语言切换.md)
 - [Linux：CentOS7系统时间修改](./notes/Linux：CentOS7系统时间修改.md)
 
+### Shell脚本
+- [常用的Shell脚本](./notes/常用的Shell脚本.md)
 
 ### Docker
 - [Docker：CentOS7下docker的安装与卸载](./notes/Docker：CentOS7下docker的安装与卸载.md)
