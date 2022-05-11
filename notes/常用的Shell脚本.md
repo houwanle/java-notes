@@ -49,6 +49,75 @@ done
 
 ---
 
+- 检测MySQL数据库连接数量
+
+```bash
+#!/bin/bash
+
+# 检测 MySQL 数据库连接数量 
+ 
+# 本脚本每 2 秒检测一次 MySQL 并发连接数,可以将本脚本设置为开机启动脚本,或在特定时间段执行
+# 以满足对 MySQL 数据库的监控需求,查看 MySQL 连接是否正常
+# 本案例中的用户名和密码需要根据实际情况修改后方可使用
+log_file=/var/log/mysql_count.log
+user=root
+passwd=123456
+while :
+do
+    sleep 2
+    count=`mysqladmin  -u  "$user"  -p  "$passwd"   status |  awk '{print $4}'`
+    echo "`date +%Y‐%m‐%d` 并发连接数为:$count" >> $log_file
+done
+```
+
+---
+
+- 检测MySQL服务是否存活
+
+```bash
+#!/bin/bash
+
+# 检测 MySQL 服务是否存活 
+ 
+# host 为你需要检测的 MySQL 主机的 IP 地址,user 为 MySQL 账户名,passwd 为密码
+# 这些信息需要根据实际情况修改后方可使用
+host=192.168.51.198
+user=root
+passwd=123456
+mysqladmin -h '$host' -u '$user' -p'$passwd' ping &>/dev/null
+if [ $? -eq 0 ]
+then
+        echo "MySQL is UP"
+else
+        echo "MySQL is down"
+fi
+```
+
+---
+
+- 备份MySQL的shell脚本(mysqldump版本)
+
+```bash
+#!/bin/bash
+
+# 备份 MySQL 的 shell 脚本(mysqldump版本) 
+ 
+# 定义变量 user(数据库用户名),passwd(数据库密码),date(备份的时间标签)
+# dbname(需要备份的数据库名称,根据实际需求需要修改该变量的值,默认备份 mysql 数据库)
+ 
+user=root
+passwd=123456
+dbname=mysql
+date=$(date +%Y%m%d)
+ 
+# 测试备份目录是否存在,不存在则自动创建该目录
+[ ! -d /mysqlbackup ] && mkdir /mysqlbackup
+# 使用 mysqldump 命令备份数据库
+mysqldump -u "$user" -p "$passwd" "$dbname" > /mysqlbackup/"$dbname"-${date}.sql
+```
+
+---
+
 ### 2. Nginx相关的Shell脚本
 
 - Nginx访问日志按天切割
@@ -66,6 +135,25 @@ for LOG_FILE in $LOG_FILE_LIST; do
 done
 
 kill -USR1 $(cat /var/run/nginx.pid)
+```
+
+---
+
+- 切割Nginx日志文件（防止单个文件过大，后期处理困难）
+
+```bash
+#mkdir  /data/scripts
+#vim   /data/scripts/nginx_log.sh  
+#!/bin/bash
+
+# 切割 Nginx 日志文件(防止单个文件过大,后期处理很困难) 
+logs_path="/usr/local/nginx/logs/"
+mv ${logs_path}access.log ${logs_path}access_$(date -d "yesterday" +"%Y%m%d").log
+kill -USR1  `cat /usr/local/nginx/logs/nginx.pid`
+ 
+# chmod +x  /data/scripts/nginx_log.sh
+# crontab  ‐e                    #脚本写完后,将脚本放入计划任务每天执行一次脚本
+0  1  *  *   *   /data/scripts/nginx_log.sh
 ```
 
 ---
@@ -1274,4 +1362,72 @@ net.ipv4.tcp_sack = 0
 EOF
  
 sysctl –p
+```
+
+---
+
+- 根据md5校验码,检测文件是否被修改
+
+```bash
+#!/bin/bash
+
+# 根据 md5 校验码,检测文件是否被修改 
+# 本示例脚本检测的是/etc 目录下所有的 conf 结尾的文件,根据实际情况,您可以修改为其他目录或文件
+# 本脚本在目标数据没有被修改时执行一次,当怀疑数据被人篡改,再执行一次
+# 将两次执行的结果做对比,MD5 码发生改变的文件,就是被人篡改的文件
+for i in $(ls /etc/*.conf)
+do
+  md5sum "$i" >> /var/log/conf_file.log
+done
+```
+
+---
+
+- 将文件中所有的小写字母转换为大写字母
+
+```bash
+#!/bin/bash
+
+# 将文件中所有的小写字母转换为大写字母 
+ 
+# $1是位置参数,是你需要转换大小写字母的文件名称
+# 执行脚本,给定一个文件名作为参数,脚本就会将该文件中所有的小写字母转换为大写字母
+tr "[a‐z]" "[A‐Z]" < $1
+```
+
+---
+
+- 非交互自动生成SSH密钥文件
+
+```bash
+#!/bin/bash
+
+# 非交互自动生成 SSH 密钥文件 
+ 
+# ‐t 指定 SSH 密钥的算法为 RSA 算法;‐N 设置密钥的密码为空;‐f 指定生成的密钥文件>存放在哪里
+rm  -rf  ~/.ssh/{known_hosts,id_rsa*}
+ssh‐keygen -t RSA -N '' -f ~/.ssh/id_rsa
+```
+
+---
+
+- 检查特定的软件包是否已经安装
+
+```bash
+#!/bin/bash
+
+# 检查特定的软件包是否已经安装 
+if [ $# -eq 0 ];then
+  echo "你需要制定一个软件包名称作为脚本参数"
+  echo "用法:$0 软件包名称 ..."
+fi
+# $@提取所有的位置变量的值,相当于$*
+for package in "$@"
+do
+    if rpm -q ${package} &>/dev/null ;then
+    echo -e "${package}\033[32m 已经安装\033[0m"
+    else
+    echo -e "${package}\033[34;1m 未安装\033[0m"
+    fi
+done
 ```
