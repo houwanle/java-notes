@@ -1431,3 +1431,1283 @@ do
     fi
 done
 ```
+
+---
+
+- 监控HTTP服务器的状态（测试返回码）
+
+```bash
+#!/bin/bash
+
+# 监控 HTTP 服务器的状态(测试返回码)
+ 
+# 设置变量,url为你需要检测的目标网站的网址(IP 或域名),比如百度
+url=http://http://183.232.231.172/index.html
+ 
+# 定义函数 check_http:
+# 使用 curl 命令检查 http 服务器的状态
+# ‐m 设置curl不管访问成功或失败,最大消耗的时间为 5 秒,5 秒连接服务为相应则视为无法连接
+# ‐s 设置静默连接,不显示连接时的连接速度、时间消耗等信息
+# ‐o 将 curl 下载的页面内容导出到/dev/null(默认会在屏幕显示页面内容)
+# ‐w 设置curl命令需要显示的内容%{http_code},指定curl返回服务器的状态码
+check_http()
+{
+        status_code=$(curl -m 5 -s -o /dev/null -w %{http_code} $url)
+}
+ 
+while :
+do
+        check_http
+        date=$(date +%Y%m%d‐%H:%M:%S)
+ 
+# 生成报警邮件的内容
+        echo "当前时间为:$date
+        $url 服务器异常,状态码为${status_code}.
+        请尽快排查异常." > /tmp/http$$.pid
+ 
+# 指定测试服务器状态的函数,并根据返回码决定是发送邮件报警还是将正常信息写入日志
+        if [ $status_code -ne 200 ];then
+                mail -s Warning root < /tmp/http$$.pid
+        else
+                echo "$url 连接正常" >> /var/log/http.log
+        fi
+        sleep 5
+done
+```
+
+---
+
+- 自动添加防火墙规则，开启某些服务或端口（适用于RHEL7）
+
+```bash
+#!/bin/bash
+
+# 自动添加防火墙规则,开启某些服务或端口(适用于 RHEL7)
+# 
+# 设置变量定义需要添加到防火墙规则的服务和端口号
+# 使用 firewall‐cmd ‐‐get‐services 可以查看 firewall 支持哪些服务
+service="nfs http ssh"
+port="80 22 8080"
+ 
+# 循环将每个服务添加到防火墙规则中
+for i in $service
+do
+    echo "Adding $i service to firewall"
+    firewall‐cmd  --add-service=${i}
+done
+ 
+#循环将每个端口添加到防火墙规则中
+for i in $port
+do
+    echo "Adding $i Port to firewall"
+    firewall‐cmd --add-port=${i}/tcp
+done
+#将以上设置的临时防火墙规则,转换为永久有效的规则(确保重启后有效)
+firewall‐cmd  --runtime-to-permanent
+```
+
+---
+
+- 使用脚本自动创建逻辑卷
+
+```bash
+#!/bin/bash
+
+# 使用脚本自动创建逻辑卷 
+ 
+# 清屏,显示警告信息,创建将磁盘转换为逻辑卷会删除数据
+clear
+echo -e "\033[32m           !!!!!!警告(Warning)!!!!!!\033[0m"
+echo
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "脚本会将整个磁盘转换为 PV,并删除磁盘上所有数据!!!"
+echo "This Script will destroy all data on the Disk"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+echo
+read -p "请问是否继续 y/n?:" sure
+ 
+# 测试用户输入的是否为 y,如果不是则退出脚本
+[ $sure != y ] && exit
+ 
+# 提示用户输入相关参数(磁盘、卷组名称等数据),并测试用户是否输入了这些值,如果没有输入,则脚本退出
+read -p "请输入磁盘名称,如/dev/vdb:" disk
+[ -z $disk ] && echo "没有输入磁盘名称" && exit
+read -p "请输入卷组名称:" vg_name
+[ -z $vg_name ] && echo "没有输入卷组名称" && exit
+read -p "请输入逻辑卷名称:" lv_name
+[ -z $lv_name ] && echo "没有输入逻辑卷名称" && exit
+read -p "请输入逻辑卷大小:" lv_size
+[ -z $lv_size ] && echo "没有输入逻辑卷大小" && exit
+ 
+# 使用命令创建逻辑卷
+pvcreate $disk
+vgcreate $vg_name $disk
+lvcreate -L ${lv_size}M -n ${lv_name}  ${vg_name}
+```
+
+---
+
+- 显示CPU厂商信息
+
+```bash
+#!/bin/bash
+
+# 显示 CPU 厂商信息 
+awk '/vendor_id/{print $3}' /proc/cpuinfo | uniq
+```
+
+---
+
+- 删除某个目录大小为0的文件
+
+```bash
+#!/bin/bash
+
+# 删除某个目录下大小为 0 的文件
+ 
+#/var/www/html 为测试目录,脚本会清空该目录下所有 0 字节的文件
+dir="/var/www/html"
+find $dir -type f -size 0 -exec rm -rf {} \;
+```
+
+---
+
+- 查找Linux系统中的僵尸进程
+
+```bash
+#!/bin/bash
+
+# 查找 Linux 系统中的僵尸进程
+ 
+# awk 判断 ps 命令输出的第 8 列为 Z 是,显示该进程的 PID 和进程命令
+ps aux | awk '{if($8 == "Z"){print $2,$11}}'
+```
+
+---
+
+- 提示用户输入年份后判断该年是否为闰年
+
+```bash
+#!/bin/bash
+
+# 提示用户输入年份后判断该年是否为闰年
+ 
+# 能被4整除并且并不能被100整除的年份是闰年
+# 能被400整除的年份也是闰年
+read -p "请输入一个年份:" year
+ 
+if [ "$year" = "" ];then
+    echo "没有输入年份"
+    exit
+fi
+#使用正则测试变量 year 中是否包含大小写字母
+if [[ "$year" =~ [a‐Z] ]];then
+    echo "你输入的不是数字"
+    exit
+fi
+# 判断是否为闰年
+if [ $[year % 4] -eq 0 ] && [ $[year % 100] -ne 0 ];then
+    echo "$year年是闰年"  
+elif [ $[year % 400] -eq 0 ];then
+    echo "$year年是闰年"
+else
+    echo "$year年不是闰年"
+fi
+```
+
+---
+
+- 生成随机密码(urandom版本)
+
+```bash
+#!/bin/bash
+
+# 生成随机密码(urandom 版本) 
+ 
+# /dev/urandom 文件是 Linux 内置的随机设备文件
+# cat /dev/urandom 可以看看里面的内容,ctrl+c 退出查看
+# 查看该文件内容后,发现内容有些太随机,包括很多特殊符号,我们需要的密码不希望使用这些符号
+# tr ‐dc '_A‐Za‐z0‐9' < /dev/urandom
+# 该命令可以将随机文件中其他的字符删除,仅保留大小写字母,数字,下划线,但是内容还是太多
+# 我们可以继续将优化好的内容通过管道传递给 head 命令,在大量数据中仅显示头 10 个字节
+# 注意 A 前面有个下划线
+tr -dc '_A‐Za‐z0‐9' </dev/urandom | head -c 10
+```
+
+---
+
+- 生成随机密码(字串截取版本)
+
+```bash
+#!/bin/bash
+
+# 生成随机密码(字串截取版本) 
+ 
+# 设置变量 key,存储密码的所有可能性(密码库),如果还需要其他字符请自行添加其他密码字符
+# 使用$#统计密码库的长度
+key="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+num=${#key}
+# 设置初始密码为空
+pass=''
+# 循环 8 次,生成随机密码
+# 每次都是随机数对密码库的长度取余,确保提取的密码字符不超过密码库的长度
+# 每次循环提取一位随机密码,并将该随机密码追加到 pass 变量的最后
+for i in {1..8}
+do  
+  index=$[RANDOM%num]
+  pass=$pass${key:$index:1}
+done
+echo $pass
+```
+
+---
+
+- 生成随机密码(UUID 版本,16 进制密码)
+
+```bash
+#!/bin/bash
+
+# 生成随机密码(UUID 版本,16 进制密码) 
+uuidgen
+56、生成随机密码(进程 ID 版本,数字密码)
+
+
+#!/bin/bash
+
+# 生成随机密码(进程 ID 版本,数字密码)
+echo $$
+```
+
+---
+
+- 测试用户名与密码是否正确
+
+```bash
+#!/bin/bash
+
+# 测试用户名与密码是否正确
+ 
+#用户名为 tom 并且密码为 123456,则提示登录成功,否则提示登录失败
+read -p "请输入用户名:"  user
+read -p "请输入密码:"    pass
+if [ "$user" == 'tom' -a "$pass" == '123456' ];then
+  echo "Login successful"
+else
+  echo "Login Failed"
+fi
+```
+
+---
+
+- 循环测试用户名与密码是否正确
+
+```bash
+#!/bin/bash
+
+# 循环测试用户名与密码是否正确 
+ 
+# 循环测试用户的账户名和密码,最大测试 3 次,输入正确提示登录成功,否则提示登录失败
+# 用户名为 tom 并且密码为 123456  
+for i in {1..3}
+do
+  read -p "请输入用户名:" user
+  read -p "请输入密码:"   pass
+if [ "$user" == 'tom' -a "$pass" == '123456' ];then
+    echo "Login successful"
+     exit
+fi
+done
+echo "Login Failed"
+```
+
+---
+
+- Shell 脚本的 fork 炸弹
+
+```bash
+#!/bin/bash
+
+# Shell 脚本的 fork 炸弹 
+ 
+# 快速消耗计算机资源,致使计算机死机
+# 定义函数名为.(点), 函数中递归调用自己并放入后台执行
+.() { .|.& };.
+```
+
+---
+
+- 批量下载有序文件(pdf、图片、视频等等)
+
+```bash
+#!/bin/bash
+
+# 批量下载有序文件(pdf、图片、视频等等)
+ 
+# 本脚本准备有序的网络资料进行批量下载操作(如 01.jpg,02.jpg,03.jpg)
+# 设置资源来源的域名连接
+url="http://www.baidu.com/"
+echo  "开始下载..."
+sleep 2
+type=jpg
+for i in `seq 100`
+     echo "正在下载$i.$type"
+  curl $url/$i.$type -o /tmp/${i}$type
+     sleep 1
+done
+#curl 使用-o 选项指定下载文件另存到哪里.
+```
+
+---
+
+- 显示当前计算机中所有账户的用户名称
+
+```bash
+#!/bin/bash
+ 
+# 显示当前计算机中所有账户的用户名称
+ 
+# 下面使用3种不同的方式列出计算机中所有账户的用户名
+# 指定以:为分隔符,打印/etc/passwd 文件的第 1 列
+awk -F: '{print $1}' /etc/passwd
+ 
+# 指定以:为分隔符,打印/etc/passwd 文件的第 1 列
+cut -d: -f1 /etc/passwd
+ 
+# 使用 sed 的替换功能,将/etc/passwd 文件中:后面的所有内容替换为空(仅显示用户名)
+sed 's/:.*//' /etc/passwd
+```
+
+---
+
+- 制定目录路径,脚本自动将该目录使用 tar 命令打包备份到/data目录
+
+```bash
+#!/bin/bash
+
+# 制定目录路径,脚本自动将该目录使用 tar 命令打包备份到/data目录 
+ 
+[ ! -d /data ] && mkdir /data
+[ -z $1 ] && exit
+if [ -d $1 ];then
+  tar -czf /data/$1.-`date +%Y%m%d`.tar.gz $1
+else
+    echo "该目录不存在"
+fi
+```
+
+---
+
+- 显示进度条(回旋镖版)
+
+```bash
+#!/bin/bash
+
+# 显示进度条(回旋镖版)
+ 
+while :
+do
+  clear
+  for i in {1..20}
+  do
+    echo ‐e "\033[3;${i}H*"
+    sleep 0.1
+    done
+    clear
+    for i in {20..1}
+    do
+    echo ‐e "\033[3;${i}H*"
+    sleep 0.1
+    done
+    clear
+done
+```
+
+---
+
+- 安装 LAMP 环境(yum 版本)
+
+```bash
+#!/bin/bash
+
+# 安装 LAMP 环境(yum 版本) 
+ 
+# 本脚本适用于 RHEL7(RHEL6 中数据库为 mysql)
+yum makecache &>/dev/null
+num=$(yum repolist | awk '/repolist/{print $2}' | sed 's/,//')
+if [ $num -lt 0 ];then
+  yum -y install httpd
+  yum -y install mariadb mariadb-server mariadb-devel
+  yum -y install php php-mysql
+else
+  echo "未配置 yum 源..."
+fi
+```
+
+---
+
+- 循环关闭局域网中所有主机
+
+```bash
+#!/bin/bash
+
+# 循环关闭局域网中所有主机 
+ 
+# 假设本机为 192.168.4.100,编写脚本关闭除自己外的其他所有主机
+# 脚本执行,需要提前给所有其他主机传递 ssh 密钥,满足无密码连接
+for i in {1..254}
+do
+  [ $i -eq 100 ] && continue
+  echo "正在关闭 192.168.4.$i..."
+  ssh 192.168.4.$i poweroff
+done
+```
+
+---
+
+- 获取本机 MAC 地址
+
+```bash
+#!/bin/bash
+
+# 获取本机 MAC 地址
+ip a s | awk 'BEGIN{print  " 本 机 MAC 地 址 信 息 如 下 :"}/^[0‐9]/{print $2;getline;if($0~/link\/ether/){print $2}}' | grep -v lo:
+ 
+# awk 读取 ip 命令的输出,输出结果中如果有以数字开始的行,先显示该行的地 2 列(网卡名称),
+# 接着使用 getline 再读取它的下一行数据,判断是否包含 link/ether
+# 如果保护该关键词,就显示该行的第 2 列(MAC 地址)
+# lo 回环设备没有 MAC,因此将其屏蔽,不显示
+```
+
+---
+
+- 自动配置 rsynd 服务器的配置文件 rsyncd.conf
+
+```bash
+#!/bin/bash
+ 
+# 自动配置 rsynd 服务器的配置文件 rsyncd.conf
+ 
+# See rsyncd.conf man page for more options.
+ 
+[ ! -d /home/ftp ] && mkdir /home/ftp
+echo 'uid = nobody
+gid = nobody
+use chroot = yes
+max connections = 4
+pid file = /var/run/rsyncd.pid
+exclude = lost+found/
+transfer logging = yes
+timeout = 900
+ignore nonreadable = yes
+dont compress   = *.gz *.tgz *.zip *.z *.Z *.rpm *.deb *.bz2
+[ftp]
+    path = /home/ftp
+    comment = share' > /etc/rsyncd.conf
+```
+
+---
+
+- 修改 Linux 系统的最大打开文件数量
+
+```bash
+#!/bin/bash
+
+# 修改 Linux 系统的最大打开文件数量 
+ 
+# 往/etc/security/limits.conf 文件的末尾追加两行配置参数,修改最大打开文件数量为 65536
+cat >> /etc/security/limits.conf <<EOF
+* soft nofile  65536
+* hard nofile  65536
+EOF
+```
+
+---
+
+- 设置 Python 支持自动命令补齐功能
+
+```bash
+#!/bin/bash
+
+# 设置 Python 支持自动命令补齐功能 
+ 
+# Summary:Enable tab complete for python
+# Description:
+ 
+Needs import readline and rlcompleter module
+#
+import readline
+#
+import rlcompleter
+#
+help(rlcompleter) display detail: readline.parse_and_bind('tab: complete')
+#
+man python display detail: PYTHONSTARTUP variable
+ 
+if  [ ! -f /usr/bin/tab.py ];then
+  cat >> /usr/bin/tab.py <<EOF
+import readline
+import rlcompleter
+readline.parse_and_bind('tab: complete')
+EOF
+fi
+sed  -i '$a export PYTHONSTARTUP=/usr/bin/tab.py' /etc/profile
+source /etc/profile
+```
+
+---
+
+- 自动修改计划任务配置文件
+
+```bash
+#!/bin/bash
+
+# 自动修改计划任务配置文件 
+ 
+read -p "请输入分钟信息(00‐59):" min
+read -p "请输入小时信息(00‐24):" hour
+read -p "请输入日期信息(01‐31):" date
+read -p "请输入月份信息(01‐12):" month
+read -p "请输入星期信息(00‐06):" weak
+read -p "请输入计划任务需要执行的命令或脚本:" program
+echo "$min $hour $date $month $weak $program" >> /etc/crontab
+```
+
+---
+
+- 使用脚本循环创建三位数字的文本文件(111-999 的文件)
+
+```bash
+#!/bin/bash
+
+# 使用脚本循环创建三位数字的文本文件(111-999 的文件) 
+ 
+for i in {1..9}
+do
+  for j in {1..9}
+  do
+    for k in {1..9}
+    do
+      touch /tmp/$i$j$k.txt
+    done
+    done
+done
+```
+
+---
+
+- 找出/etc/passwd 中能登录的用户,并将对应在/etc/shadow 中第二列密码提出处理
+
+```bash
+#!/bin/bash
+
+# 找出/etc/passwd 中能登录的用户,并将对应在/etc/shadow 中第二列密码提出处理
+ 
+user=$(awk -F: '/bash$/{print $1}' /etc/passwd)
+for i in $user
+do
+  awk -F: -v x=$i '$1==x{print $1,$2}' /etc/shadow
+done
+```
+
+---
+
+- 统计/etc/passwd 中 root 出现的次数
+
+```bash
+#!/bin/bash
+
+# 统计/etc/passwd 中 root 出现的次数 
+ 
+#每读取一行文件内容,即从第 1 列循环到最后 1 列,依次判断是否包含 root 关键词,如果包含则 x++
+awk -F: '{i=1;while(i<=NF){if($i~/root/){x++};i++}} END{print "root 出现次数为"x}' /etc/passwd
+```
+
+---
+
+- 统计 Linux 进程相关数量信息
+
+```bash
+#!/bin/bash
+
+# 统计 Linux 进程相关数量信息 
+ 
+running=0
+sleeping=0
+stoped=0
+zombie=0
+# 在 proc 目录下所有以数字开始的都是当前计算机正在运行的进程的进程 PID
+# 每个 PID 编号的目录下记录有该进程相关的信息
+for pid in /proc/[1‐9]*
+do
+  procs=$[procs+1]
+  stat=$(awk '{print $3}' $pid/stat)
+# 每个 pid 目录下都有一个 stat 文件,该文件的第 3 列是该进程的状态信息
+    case $stat in
+    R)
+    running=$[running+1]
+    ;;
+    T)
+    stoped=$[stoped+1]
+    ;;
+    S)
+    sleeping=$[sleeping+1]
+    ;;
+    Z)
+     zombie=$[zombie+1]
+     ;;
+    esac
+done
+echo "进程统计信息如下"
+echo "总进程数量为:$procs"
+echo "Running 进程数为:$running"
+echo "Stoped 进程数为:$stoped"
+echo "Sleeping 进程数为:$sleeping"
+echo "Zombie 进程数为:$zombie"
+```
+
+---
+
+- 从键盘读取一个论坛积分,判断论坛用户等级
+
+```bash
+#!/bin/bash
+
+# 从键盘读取一个论坛积分,判断论坛用户等级
+ 
+#等级分类如下:
+#  大于等于 90        神功绝世
+#  大于等于 80,小于 90       登峰造极
+#  大于等于 70,小于 80       炉火纯青
+#  大于等于 60,小于 70       略有小成
+#  小于 60               初学乍练
+read -p "请输入积分(0‐100):" JF
+if [ $JF -ge 90 ] ; then
+  echo "$JF 分,神功绝世"
+elif [ $JF -ge 80 ] ; then
+    echo "$JF 分,登峰造极"
+elif [ $JF -ge 70 ] ; then
+    echo "$JF 分,炉火纯青"
+elif [ $JF -lt 60 ] ; then
+    echo "$JF 分,略有小成"
+else
+    echo "$JF 分,初学乍练"
+fi
+```
+
+---
+
+- 判断用户输入的数据类型(字母、数字或其他)
+
+```bash
+#!/bin/bash
+
+# 判断用户输入的数据类型(字母、数字或其他) 
+read -p "请输入一个字符:" KEY
+case "$KEY" in
+  [a‐z]|[A‐Z])
+    echo "字母" 
+    ;;
+  [0‐9])
+    echo "数字" 
+    ;;
+  *)
+    echo "空格、功能键或其他控制字符"
+esac
+```
+
+---
+
+- 显示进度条(数字版)
+
+```bash
+#!/bin/bash
+
+# 显示进度条(数字版) 
+# echo 使用‐e 选项后,在打印参数中可以指定 H,设置需要打印内容的 x,y 轴的定位坐标
+# 设置需要打印内容在第几行,第几列
+for i in {1..100}
+do
+    echo -e "\033[6;8H["
+    echo -e "\033[6;9H$i%"
+    echo -e "\033[6;13H]"
+    sleep 0.1
+done
+```
+
+---
+
+- 打印斐波那契数列
+
+```bash
+#!/bin/bash
+
+# 打印斐波那契数列(该数列的特点是后一个数字,永远都是前 2 个数字之和) 
+ 
+# 斐波那契数列后一个数字永远是前 2 个数字之和
+# 如:0  1  1  2  3  5  8  13 ... ...
+list=(0 1)
+for i in `seq 2 11`
+do
+  list[$i]=`expr ${list[‐1]} + ${list[‐2]}`
+done
+echo ${list[@]}
+```
+
+---
+
+- 判断用户输入的是 Yes 或 NO
+
+```bash
+#!/bin/bash
+
+# 判断用户输入的是 Yes 或 NO 
+ 
+read -p  "Are you sure?[y/n]:"  sure
+case  $sure  in
+  y|Y|Yes|YES)  
+    echo "you enter $a"
+    ;;
+    n|N|NO|no)
+     echo "you enter $a"
+     ;;
+    *)
+     echo "error";;
+esac
+```
+
+---
+
+- 显示本机 Linux 系统上所有开放的端口列表
+
+```bash
+#!/bin/bash
+
+# 显示本机 Linux 系统上所有开放的端口列表 
+ 
+# 从端口列表中观测有没有没用的端口,有的话可以将该端口对应的服务关闭,防止意外的攻击可能性
+ss -nutlp | awk '{print $1,$5}' | awk -F"[: ]" '{print "协议:"$1,"端口号:"$NF}' | grep "[0‐9]" | uniq
+```
+
+---
+
+- 将 Linux 系统中 UID 大于等于 1000 的普通用户都删除
+
+```bash
+#!/bin/bash
+
+# 将 Linux 系统中 UID 大于等于 1000 的普通用户都删除 
+ 
+# 先用 awk 提取所有 uid 大于等于 1000 的普通用户名称
+# 再使用 for 循环逐个将每个用户删除即可
+user=$(awk -F: '$3>=1000{print $1}' /etc/passwd)
+for i in $user
+do
+     userdel -r $i
+done
+```
+
+---
+
+- 使用脚本开启关闭虚拟机
+
+```bash
+#!/bin/bash
+
+# 使用脚本开启关闭虚拟机 
+ 
+# 脚本通过调用virsh命令实现对虚拟机的管理,如果没有该命令,需要安装 libvirt‐client 软件包
+# $1是脚本的第1个参数,$2是脚本的第2个参数
+# 第1个参数是你希望对虚拟机进行的操作指令,第2个参数是虚拟机名称
+case $1 in
+  list)
+    virsh list --all
+    ;;
+  start)
+    virsh start $2
+    ;;
+  stop)
+    virsh destroy $2
+    ;;
+  enable)
+    virsh autostart $2
+    ;;
+  disable)
+    virsh autostart --disable $2
+    ;;
+  *)
+    echo "Usage:$0 list"
+    echo "Usage:$0 [start|stop|enable|disable]  VM_name"
+    cat << EOF
+    #list      显示虚拟机列表
+    #start     启动虚拟机
+    #stop      关闭虚拟机
+    #enable    设置虚拟机为开机自启
+    #disable   关闭虚拟机开机自启功能
+    EOF
+    ;;
+esac
+```
+
+---
+
+- 调整虚拟机内存参数的 shell 脚本
+
+```bash
+#!/bin/bash
+
+# 调整虚拟机内存参数的 shell 脚本 
+ 
+# 脚本通过调用 virsh 命令实现对虚拟机的管理,如果没有该命令,需要安装 libvirt‐client 软件包
+cat << EOF
+1.调整虚拟机最大内存数值
+2.调整实际分配给虚拟机的内存数值
+EOF
+read -p "请选择[1‐2]:" select
+case $select in
+  1)
+      read -p "请输入虚拟机名称" name
+      read -p "请输入最大内存数值(单位:k):" size
+      virsh setmaxmem $name --size $size --config
+      ;;
+  2)
+      read -p "请输入虚拟机名称" name
+      read -p "请输入实际分配内存数值(单位:k):" size
+      virsh setmem $name $size
+      ;;
+  *)
+      echo "Error"
+      ;;
+esac
+```
+
+---
+
+- 查看 KVM 虚拟机中的网卡信息(不需要进入启动或进入虚拟机)
+
+```bash
+#!/bin/bash
+
+# 查看 KVM 虚拟机中的网卡信息(不需要进入启动或进入虚拟机) 
+ 
+# 该脚本使用 guestmount 工具,可以将虚拟机的磁盘系统挂载到真实机文件系统中
+# Centos7.2 中安装 libguestfs‐tools‐c 可以获得 guestmount 工具
+# 虚拟机可以启动或者不启动都不影响该脚本的使用
+# 将虚拟机磁盘文件挂载到文件系统后,就可以直接读取磁盘文件中的网卡配置文件中的数据
+clear
+mountpoint="/media/virtimage"
+[ ! -d $mountpoint ] && mkdir $mountpoint
+read -p "输入虚拟机名称:" name
+echo "请稍后..."
+# 如果有设备挂载到该挂载点,则先 umount 卸载
+if mount | grep -q "$mountpoint" ;then
+  umount $mountpoint
+fi
+# 只读的方式,将虚拟机的磁盘文件挂载到特定的目录下,这里是/media/virtimage 目录
+guestmount -r -d $name -i $mountpoint
+echo
+echo "‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐"
+echo -e "\033[32m$name 虚拟机中网卡列表如下:\033[0m"
+dev=$(ls /media/virtimage/etc/sysconfig/network‐scripts/ifcfg-* |awk -F"[/‐]" '{print $9}')
+echo $dev
+echo "‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐"
+echo
+echo
+echo "+++++++++++++++++++++++++++++++++++++++++++"
+echo -e "\033[32m 网卡 IP 地址信息如下:\033[0m"
+for i in $dev
+do
+  echo -n "$i:"
+  grep -q "IPADDR" /media/virtimage/etc/sysconfig/network‐scripts/ifcfg-$i || echo "未配置 IP地址"
+  awk -F= '/IPADDR/{print $2}' /media/virtimage/etc/sysconfig/network-scripts/ifcfg-$i
+done
+echo "+++++++++++++++++++++++++++++++++++++++++++"
+```
+
+---
+
+- 不登陆虚拟机,修改虚拟机网卡 IP 地址
+
+```bash
+#!/bin/bash
+
+# 不登陆虚拟机,修改虚拟机网卡 IP 地址 
+ 
+# 该脚本使用 guestmount 工具,Centos7.2 中安装 libguestfs‐tools‐c 可以获得 guestmount 工具
+# 脚本在不登陆虚拟机的情况下,修改虚拟机的 IP 地址信息
+# 在某些环境下,虚拟机没有 IP 或 IP 地址与真实主机不在一个网段
+# 真实主机在没有 virt‐manger 图形的情况下,远程连接虚拟机很麻烦
+# 该脚本可以解决类似的问题
+read -p "请输入虚拟机名称:" name
+if virsh domstate $name | grep -q running ;then
+  echo "修改虚拟机网卡数据,需要关闭虚拟机"
+  virsh destroy $name
+fi
+mountpoint="/media/virtimage"
+[ ! -d $mountpoint ] && mkdir $mountpoint
+echo "请稍后..."
+if mount | grep -q "$mountpoint" ;then
+  umount $mountpoint
+fi
+guestmount  -d $name -i $mountpoint
+read -p "请输入需要修改的网卡名称:" dev
+read -p "请输入 IP 地址:" addr
+# 判断原本网卡配置文件中是否有 IP 地址,有就修改该 IP,没有就添加一个新的 IP 地址
+if grep -q "IPADDR"  $mountpoint/etc/sysconfig/network‐scripts/ifcfg‐$dev ;then
+  sed -i "/IPADDR/s/=.*/=$addr/"  $mountpoint/etc/sysconfig/network‐scripts/ifcfg‐$dev
+else
+  echo "IPADDR=$addr" >> $mountpoint/etc/sysconfig/network‐scripts/ifcfg‐$dev
+fi
+# 如果网卡配置文件中有客户配置的 IP 地址,则脚本提示修改 IP 完成
+awk -F= -v x=$addr '$2==x{print "完成..."}'  $mountpoint/etc/sysconfig/network‐scripts/ifcfg-$dev
+```
+
+---
+
+- 破解虚拟机密码,无密码登陆虚拟机系统
+
+```bash
+#!/bin/bash
+
+# 破解虚拟机密码,无密码登陆虚拟机系统 
+ 
+# 该脚本使用 guestmount 工具,Centos7.2 中安装 libguestfs‐tools‐c 可以获得 guestmount 工具
+ 
+read -p "请输入虚拟机名称:" name
+if virsh domstate $name | grep -q running ;then
+  echo "破解,需要关闭虚拟机"
+  virsh destroy $name
+fi
+mountpoint="/media/virtimage"
+[ ! -d $mountpoint ] && mkdir $mountpoint
+echo "请稍后..."
+if mount | grep -q "$mountpoint" ;then
+  umount $mountpoint
+fi
+guestmount -d $name -i $mountpoint
+# 将 passwd 中密码占位符号 x 删除,该账户即可实现无密码登陆系统
+sed -i "/^root/s/x//" $mountpoint/etc/passwd
+```
+
+---
+
+- Shell 脚本对信号的处理,执行脚本后,按键盘 Ctrl+C 无法终止的脚本
+
+```bash
+#!/bin/bash
+
+# Shell 脚本对信号的处理,执行脚本后,按键盘 Ctrl+C 无法终止的脚本 
+ 
+# 使用 trap 命令可以拦截用户通过键盘或 kill 命令发送过来的信号
+# 使用 kill ‐l 可以查看 Linux 系统中所有的信号列表,其中 2 代表 Ctrl+C
+# trap 当发现有用户 ctrl+C 希望终端脚本时,就执行 echo "暂停 10s";sleep 10 这两条命令
+# 另外用户使用命令:[ kill ‐2 脚本的 PID ] 也可以中断脚本和 Ctrl+C 一样的效果,都会被 trap 拦截
+trap 'echo "暂停 10s";sleep 10' 2
+while :
+do
+  echo "go go go"
+done
+```
+
+---
+
+- 一键部署 memcached
+
+```bash
+#!/bin/bash
+
+# 一键部署 memcached 
+ 
+# 脚本用源码来安装 memcached 服务器
+# 注意:如果软件的下载链接过期了,请更新 memcached 的下载链接
+wget http://www.memcached.org/files/memcached-1.5.1.tar.gz
+yum -y install gcc
+tar -xf  memcached‐1.5.1.tar.gz
+cd memcached‐1.5.1
+./configure
+make
+make install
+```
+
+---
+
+- 一键配置 VNC 远程桌面服务器(无密码版本)
+
+```bash
+#!/bin/bash
+
+# 一键配置 VNC 远程桌面服务器(无密码版本)
+ 
+# 脚本配置的 VNC 服务器,客户端无需密码即可连接
+# 客户端仅有查看远程桌面的权限,没有鼠标和键盘的操作权限
+ 
+rpm --quiet -q tigervnc‐server
+if [  $? -ne  0 ];then
+  yum  -y  tigervnc‐server
+fi
+x0vncserver AcceptKeyEvents=0 AlwaysShared=1 \
+AcceptPointerEvents=0 SecurityTypes=None  rfbport=5908
+```
+
+---
+
+- 关闭 SELinux
+
+```bash
+#!/bin/bash
+
+# 关闭 SELinux 
+ 
+sed -i  '/^SELINUX/s/=.*/=disabled/' /etc/selinux/config
+setenforce 0
+```
+
+---
+
+- 查看所有虚拟机磁盘使用量以及CPU使用量信息
+
+```bash
+#!/bin/bash
+
+# 查看所有虚拟机磁盘使用量以及CPU使用量信息 
+ 
+virt‐df
+read -n1 "按任意键继续" key
+virt‐top
+```
+
+---
+
+- 使用 shell 脚本打印图形
+
+```bash
+#!/bin/bash
+
+# 使用 shell 脚本打印如下图形: 
+ 
+# 打印第一组图片
+# for(())为类 C 语言的语法格式,也可以使用 for i  in;do  ;done 的格式替换
+# for((i=1;i<=9;i++))循环会执行 9 次,i 从 1 开始到 9,每循环一次 i 自加 1
+clear
+for (( i=1; i<=9; i++ ))
+do
+  for (( j=1; j<=i; j++ ))
+  do
+    echo -n "$i"
+  done
+  echo ""
+done
+read  -n1  "按任意键继续"  key
+#打印第二组图片
+clear
+for (( i=1; i<=5; i++ )) 
+do
+  for (( j=1; j<=i; j++ ))
+  do
+    echo -n " |"
+  done
+  echo "_ "
+done
+read  -n1  "按任意键继续"  key
+#打印第三组图片
+clear
+for (( i=1; i<=5; i++ ))
+do
+  for (( j=1; j<=i; j++ ))
+  do
+    echo -n " *"
+  done
+  echo ""
+done
+for (( i=5; i>=1; i‐‐ ))
+do
+  for (( j=1; j<=i; j++ ))
+  do
+    echo -n " *"
+  done
+  echo ""
+done
+```
+
+---
+
+- 根据计算机当前时间,返回问候语,可以将该脚本设置为开机启动
+
+```bash
+#!/bin/bash
+
+# 根据计算机当前时间,返回问候语,可以将该脚本设置为开机启动 
+ 
+# 00‐12 点为早晨,12‐18 点为下午,18‐24 点为晚上
+# 使用 date 命令获取时间后,if 判断时间的区间,确定问候语内容
+tm=$(date +%H)
+if [ $tm -le 12 ];then
+  msg="Good Morning $USER"
+elif [ $tm -gt 12 -a $tm -le 18 ];then
+    msg="Good Afternoon $USER"
+else
+    msg="Good Night $USER"
+fi
+echo "当前时间是:$(date +"%Y‐%m‐%d %H:%M:%S")"
+echo -e "\033[34m$msg\033[0m"
+```
+
+---
+
+- 读取用户输入的账户名称,将账户名写入到数组保存
+
+```bash
+#!/bin/bash
+
+# 读取用户输入的账户名称,将账户名写入到数组保存 
+ 
+# 定义数组名称为 name,数组的下标为 i,小标从 0 开始,每输入一个账户名,下标加 1,继续存下一个账户
+# 最后,输入 over,脚本输出总结性信息后脚本退出
+i=0
+while :
+do
+  read -p "请输入账户名,输入 over 结束:" key
+  if [ $key == "over" ];then 
+    break
+    else
+    name[$i]=$key
+    let i++
+    fi
+done
+echo "总账户名数量:${#name[*]}"
+echo "${name[@]}"
+```
+
+---
+
+- 判断文件或目录是否存在
+
+```bash
+#!/bin/bash
+
+# 判断文件或目录是否存在 
+ 
+if [ $# -eq 0 ] ;then
+echo "未输入任何参数,请输入参数"
+echo "用法:$0 [文件名|目录名]"
+fi
+if [ -f $1 ];then
+  echo "该文件,存在"
+  ls -l $1
+else
+  echo "没有该文件"
+fi
+if [ -d  $1 ];then
+     echo "该目录,存在"
+     ls -ld  $2
+else
+     echo "没有该目录"
+fi
+```
+
+---
+
+- 打印各种格式的时间
+
+```bash
+#!/bin/bash
+
+# 打印各种时间格式 
+ 
+echo "显示星期简称(如:Sun)"
+date +%a
+echo "显示星期全称(如:Sunday)"
+date +%A
+echo "显示月份简称(如:Jan)"
+date +%b
+echo "显示月份全称(如:January)"
+date +%B
+echo "显示数字月份(如:12)"
+date +%m
+echo "显示数字日期(如:01 号)"
+date +%d
+echo "显示数字年(如:01 号)"
+date +%Y echo "显示年‐月‐日"
+date +%F
+echo "显示小时(24 小时制)"
+date +%H
+echo "显示分钟(00..59)"
+date +%M
+echo "显示秒"
+date +%S
+echo "显示纳秒"
+date +%N
+echo "组合显示"
+date +"%Y%m%d %H:%M:%S"
+```
+
+---
+
+- 使用 egrep 过滤 MAC 地址
+
+```bash
+#!/bin/bash
+
+# 使用 egrep 过滤 MAC 地址 
+ 
+# MAC 地址由 16 进制组成,如 AA:BB:CC:DD:EE:FF
+# [0‐9a‐fA‐F]{2}表示一段十六进制数值,{5}表示连续出现5组前置:的十六进制
+egrep "[0‐9a‐fA‐F]{2}(:[0‐9a‐fA‐F]{2}){5}" $1
+```
+
+---
+
+- 统计双色球各个数字的中奖概率
+
+```bash
+#!/bin/bash
+ 
+# 统计双色球各个数字的中奖概率 
+ 
+# 往期双色球中奖号码如下:
+# 01 04 11 28 31 32  16
+# 04 07 08 18 23 24  02
+# 02 05 06 16 28 29  04
+# 04 19 22 27 30 33  01
+# 05 10 18 19 30 31  03
+# 02 06 11 12 19 29  06
+# 统计篮球和红球数据出现的概率次数(篮球不分顺序,统计所有篮球混合在一起的概率)
+awk '{print $1"\n"$2"\n"$3"\n"$4"\n"$5"\n"$6}' 1.txt | sort | uniq -c | sort
+awk '{print $7}' 1.txt | sort | uniq -c | sort
+```
+
+---
+
+- 生成签名私钥和证书
+
+```bash
+#!/bin/bash
+
+# 生成签名私钥和证书 
+ 
+read -p "请输入存放证书的目录:" dir
+if [ ! -d $dir ];then
+  echo "该目录不存在"
+  exit
+fi
+read -p "请输入密钥名称:" name
+# 使用 openssl 生成私钥
+openssl genrsa -out ${dir}/${name}.key
+# 使用 openssl 生成证书 #subj 选项可以在生成证书时,非交互自动填写 Common Name 信息
+openssl req -new -x509 -key ${dir}/${name}.key -subj "/CN=common" -out ${dir}/${name}.crt
+```
+
+---
+
+- 使用awk编写的wc程序
+
+```bash
+#!/bin/bash
+
+# 使用awk编写的wc程序 
+ 
+# 自定义变量 chars 变量存储字符个数,自定义变量 words 变量存储单词个数
+# awk 内置变量 NR 存储行数
+# length()为 awk 内置函数,用来统计每行的字符数量,因为每行都会有一个隐藏的$,所以每次统计后都+1
+# wc 程序会把文件结尾符$也统计在内,可以使用 cat ‐A 文件名,查看该隐藏字符
+awk '{chars+=length($0)+1;words+=NF} END{print NR,words,chars}' $1
+```
