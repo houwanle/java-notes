@@ -64,6 +64,34 @@ ___
 在一行中用三个以上的星号(*)、减号(-)、下划线(_)来建立一个分隔线；除空格外行内不能有其他字符；（除第一个符号的左侧最多添加三个空格外）三个相同符号两侧可以添加任意多个空格。
 
 
+### 字体、大小、颜色
+
+<font face="黑体">我是黑体字</font><br/>
+<font face="微软雅黑">我是微软雅黑</font><br/>
+<font face="STCAIYUN">我是华文彩云</font><br/>
+<font color=red>我是红色</font><br/>
+<font color=#008000>我是绿色</font><br/>
+<font color=Blue>我是蓝色</font><br/>
+<font size=5>我是尺寸</font><br/>
+<font face="黑体" color=green size=5>我是黑体，绿色，尺寸为5</font>
+
+### 为文字添加背景色
+
+> 由于 style 标签和标签的 style 属性不被支持，所以这里只能是借助 table, tr, td 等表格标签的 bgcolor 属性来实现背景色。故这里对于文字背景色的设置，只是将那一整行看作一个表格，更改了那个格子的背景色（bgcolor）
+
+<table>
+  <tr>
+    <td bgcolor=yellow>
+      <font color=green>背景色yellow</font>
+    </td>
+  </tr>
+</table>
+
+
+
 ### 引用
+
+> 被引用的文字
+
 
 ### 插入链接与图片
