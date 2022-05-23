@@ -17,6 +17,7 @@
 - [JVM工具（一）：jps-虚拟机进程状态工具](./notes/JVM工具（一）：jps-虚拟机进程状态工具.md)
 - [JVM工具（二）：jstat-虚拟机统计信息监控工具](./notes/JVM工具（二）：jstat-虚拟机统计信息监控工具.md)
 - [JVM工具（三）：jinfo-jvm配置信息工具](./notes/JVM工具（三）：jinfo-jvm配置信息工具.md)
+- [JVM工具（四）：jmap-java内存映射工具](./notes/JVM工具（四）：jmap-java内存映射工具.md)
 
 ### MySQL
 - [MySQL：数据库设计规范](./notes/MySQL：数据库设计规范.md)
