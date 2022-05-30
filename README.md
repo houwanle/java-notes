@@ -20,6 +20,7 @@
 - [JVM工具（四）：jmap-java内存映射工具](./notes/JVM工具（四）：jmap-java内存映射工具.md)
 - [JVM工具（五）：jhat-虚拟机堆转储快照分析工具](./notes/JVM工具（五）：jhat-虚拟机堆转储快照分析工具.md)
 - [JVM工具（六）：jstack-java堆栈跟踪工具](./notes/JVM工具（六）：jstack-java堆栈跟踪工具.md)
+- [JVM工具（七）：jconsole-java监视与管理控制台](./notes/JVM工具（七）：jconsole-java监视与管理控制台.md)
 
 ### MySQL
 - [MySQL：数据库设计规范](./notes/MySQL：数据库设计规范.md)
