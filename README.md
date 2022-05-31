@@ -21,6 +21,7 @@
 - [JVM工具（五）：jhat-虚拟机堆转储快照分析工具](./notes/JVM工具（五）：jhat-虚拟机堆转储快照分析工具.md)
 - [JVM工具（六）：jstack-java堆栈跟踪工具](./notes/JVM工具（六）：jstack-java堆栈跟踪工具.md)
 - [JVM工具（七）：jconsole-java监视与管理控制台](./notes/JVM工具（七）：jconsole-java监视与管理控制台.md)
+- [JVM工具（八）：jvisualvm-多合一故障处理工具](./notes/JVM工具（八）：jvisualvm-多合一故障处理工具.md)
 
 ### MySQL
 - [MySQL：数据库设计规范](./notes/MySQL：数据库设计规范.md)
