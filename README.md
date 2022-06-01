@@ -42,6 +42,9 @@
 - [多线程与高并发（七）：synchronize新版深入详解](./notes/多线程与高并发（七）：synchronize新版深入详解.md)
 - [多线程与高并发（八）：Java多线程体系](./notes/多线程与高并发（八）：Java多线程体系.md)
 
+### Java高并发
+- [Java高并发（一）：必须知道的几个概念](./notes/Java高并发（一）：必须知道的几个概念.md)
+
 
 ### Elastic Stack
 
