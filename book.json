@@ -7,11 +7,16 @@
     "-search",
     "search-pro",
     "pageview-count",
-    "hide-element"
+    "hide-element",
+    "code"
   ],
   "pluginsConfig":{     
     "hide-element": {
         "elements": [".gitbook-link"]
+    },
+    
+    "code": {
+      "copyButtons": true
     }
   },
 
@@ -22,6 +27,7 @@
     "-search": "移除自带的搜索插件",
     "search-pro": "高级搜索（支持中文）",
     "pageview-count": "该插件用来统计当前页面被访问次数",
-    "hide-element": "隐藏Published with GitBook字样的插件及配置"
+    "hide-element": "隐藏Published with GitBook字样的插件及配置",
+    "code": "为代码块添加行号和复制按钮，复制按钮可关闭;单行代码无行号。"
   }
 }
