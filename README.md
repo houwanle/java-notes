@@ -49,7 +49,7 @@
 - [Java高并发（四）：JMM相关的一些概念](./notes/Java高并发（四）：JMM相关的一些概念.md)
 - [Java高并发（五）：深入理解进程和线程](./notes/Java高并发（五）：深入理解进程和线程.md)
 - [Java高并发（六）：线程的基本操作](./notes/Java高并发（六）：线程的基本操作.md)
-
+- [Java高并发（七）：volatile与Java内存模型](./notes/Java高并发（七）：volatile与Java内存模型.md)
 
 ### Elastic Stack
 
