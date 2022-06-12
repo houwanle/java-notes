@@ -1,7 +1,10 @@
+
 {
   "plugins":[
     "expandable-chapters",
+    "splitter",
     "-lunr",
-    "splitter"
+    "-search",
+    "search-pro"
   ]
 }
