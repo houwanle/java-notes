@@ -1,4 +1,3 @@
-
 {
   "plugins":[
     "expandable-chapters",
@@ -10,7 +9,8 @@
     "hide-element",
     "code",
     "back-to-top-button",
-    "donate"
+    "donate",
+    "popup"
   ],
   "pluginsConfig":{     
     "hide-element": {
@@ -22,8 +22,8 @@
     },
 
     "donate": {
-      "wechat": "/notes/pics/donate/wechat.png",
-      "alipay": "/notes/pics/donate/alipay.png",
+      "wechat": "/notes/pics/donate/wechat.JPG",
+      "alipay": "/notes/pics/donate/alipay.JPG",
       "title": "",
       "button": "赏",
       "wechatText": "微信打赏",
@@ -41,6 +41,7 @@
     "hide-element": "隐藏Published with GitBook字样的插件及配置",
     "code": "为代码块添加行号和复制按钮，复制按钮可关闭;单行代码无行号。",
     "back-to-top-button": "返回顶部",
-    "donate": "打赏插件及其配置"
+    "donate": "文章底部打赏插件及配置",
+    "popup": "点击图片时，打开新的网页用来查看高清大图"
   }
 }
