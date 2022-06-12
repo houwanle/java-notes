@@ -6,5 +6,12 @@
     "-lunr",
     "-search",
     "search-pro"
-  ]
+  ],
+  "?plugins_comment":{
+    "expandable-chapters": "目录折叠插件",
+    "splitter": "左侧目录菜单宽度调整插件",
+    "-lunr": "溢出默认的搜索插件",
+    "-search": "移除自带的搜索插件",
+    "search-pro": "高级搜索（支持中文）"
+  }
 }
