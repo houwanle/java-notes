@@ -16,7 +16,7 @@
     "hide-element": {
         "elements": [".gitbook-link"]
     },
-    
+
     "code": {
       "copyButtons": true
     },
