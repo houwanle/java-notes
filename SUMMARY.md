@@ -49,6 +49,7 @@
   * [Java高并发（七）：volatile与Java内存模型](notes/Java高并发（七）：volatile与Java内存模型.md)
   * [Java高并发（八）：线程组](notes/Java高并发（八）：线程组.md)
   * [Java高并发（九）：用户线程和守护线程](notes/Java高并发（九）：用户线程和守护线程.md)
+  * [Java高并发（十）：线程安全和synchronized](notes/Java高并发（十）：线程安全和synchronized.md)
 * [Elasticsearch]()
   * [ES（一）：Elasticsearch核心概念](notes/ES（一）：Elasticsearch核心概念.md)
   * [ES（二）：环境安装、健康值检查以及CRUD](notes/ES（二）：环境安装、健康值检查以及CRUD.md)
