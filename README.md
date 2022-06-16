@@ -53,6 +53,7 @@
 - [Java高并发（八）：线程组](./notes/Java高并发（八）：线程组.md)
 - [Java高并发（九）：用户线程和守护线程](./notes/Java高并发（九）：用户线程和守护线程.md)
 - [Java高并发（十）：线程安全和synchronized](./notes/Java高并发（十）：线程安全和synchronized.md)
+- [Java高并发（十一）：中断线程的几种方式](./notes/Java高并发（十一）：中断线程的几种方式.md)
 
 ### Elastic Stack
 
