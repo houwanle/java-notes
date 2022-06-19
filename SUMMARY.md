@@ -52,6 +52,7 @@
   * [Java高并发（十）：线程安全和synchronized](notes/Java高并发（十）：线程安全和synchronized.md)
   * [Java高并发（十一）：中断线程的几种方式](notes/Java高并发（十一）：中断线程的几种方式.md)
   * [Java高并发（十二）：JUC中ReentrantLock](notes/Java高并发（十二）：JUC中ReentrantLock.md)
+  * [Java高并发（十三）：JUC中的Condition](notes/Java高并发（十三）：JUC中的Condition.md)
 * [Elasticsearch]()
   * [ES（一）：Elasticsearch核心概念](notes/ES（一）：Elasticsearch核心概念.md)
   * [ES（二）：环境安装、健康值检查以及CRUD](notes/ES（二）：环境安装、健康值检查以及CRUD.md)
