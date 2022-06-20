@@ -1,6 +1,6 @@
-## Java高并发（十三）：JUC中的Condition
+# Java高并发（十三）：JUC中的Condition
 
-### synchronized中等待和唤醒线程示例
+## synchronized中等待和唤醒线程示例
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -72,7 +72,7 @@ public class Demo1 {
 3. t2调用lock.notify()方法，准备将等待在lock上的线程t1唤醒，notify()方法之后又休眠了5秒，看一下输出的5、8可知，notify()方法之后，t1并不能立即被唤醒，需要等到t2将synchronized块执行完毕，释放锁之后，t1才被唤醒
 4. wait()方法和notify()方法必须放在同步块内调用（synchronized块内），否则会报错
 
-### Condition使用简介
+## Condition使用简介
 
 任何一个java对象都天然继承于Object类，在线程间实现通信的往往会应用到Object的几个方法，比如wait()、wait(long timeout)、wait(long timeout, int nanos)与notify()、notifyAll()几个方法实现等待/通知机制，同样的， 在java Lock体系下依然会有同样的方法实现等待/通知机制。
 
@@ -159,7 +159,7 @@ public class Demo2 {
 
 Condition.await()方法和Object.wait()方法类似，当使用Condition.await()方法时，需要先获取Condition对象关联的ReentrantLock的锁，在Condition.await()方法被调用时，当前线程会释放这个锁，并且当前线程会进行等待（处于阻塞状态）。在signal()方法被调用后，系统会从Condition对象的等待队列中唤醒一个线程，一旦线程被唤醒，被唤醒的线程会尝试重新获取锁，一旦获取成功，就可以继续执行了。因此，在signal被调用后，一般需要释放相关的锁，让给其他被唤醒的线程，让他可以继续执行。
 
-### Condition常用方法
+## Condition常用方法
 
 **和Object中wait类似的方法**
 1. void await() throws InterruptedException:当前线程进入等待状态，如果其他线程调用condition的signal或者signalAll方法并且当前线程获取Lock从await方法返回，如果在等待状态中被中断会抛出被中断异常；
@@ -172,7 +172,7 @@ Condition.await()方法和Object.wait()方法类似，当使用Condition.await()
 1. void signal()：唤醒一个等待在condition上的线程，将该线程从等待队列中转移到同步队列中，如果在同步队列中能够竞争到Lock则可以从等待方法中返回。
 2. void signalAll()：与1的区别在于能够唤醒所有等待在condition上的线程；
 
-### Condition.await()过程中被打断
+## Condition.await()过程中被打断
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -224,7 +224,7 @@ java.lang.InterruptedException
 调用condition.await()之后，线程进入阻塞中，调用t1.interrupt()，给t1线程发送中断信号，await()方法内部会检测到线程中断信号，然后触发InterruptedException异常，线程中断标志被清除。从输出结果中可以看出，线程t1中断标志的变换过程：false->true->false
 
 
-### await(long time, TimeUnit unit)超时之后自动返回
+## await(long time, TimeUnit unit)超时之后自动返回
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -268,7 +268,7 @@ false
 
 t1线程等待2秒之后，自动返回继续执行，最后await方法返回false，await返回false表示超时之后自动返回
 
-### await(long time, TimeUnit unit)超时之前被唤醒
+## await(long time, TimeUnit unit)超时之前被唤醒
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -320,7 +320,7 @@ true
 
 t1线程中调用condition.await(5, TimeUnit.SECONDS);方法会释放锁，等待5秒，主线程休眠1秒，然后获取锁，之后调用signal()方法唤醒t1，输出结果中发现await后过了1秒（1、3行输出结果的时间差），await方法就返回了，并且返回值是true。true表示await方法超时之前被其他线程唤醒了。
 
-### long awaitNanos(long nanosTimeout)超时返回
+## long awaitNanos(long nanosTimeout)超时返回
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -366,7 +366,7 @@ awaitNanos参数为纳秒，可以调用TimeUnit中的一些方法将时间转�
 
 t1调用await方法等待5秒超时返回，返回结果为负数，表示超时之后返回的。
 
-### waitNanos(long nanosTimeout)超时之前被唤醒
+## waitNanos(long nanosTimeout)超时之前被唤醒
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -420,7 +420,7 @@ t1中调用await休眠5秒，主线程休眠1秒之后，调用signal()唤醒线
 
 其他几个有参的await方法和无参的await方法一样，线程调用interrupt()方法时，这些方法都会触发InterruptedException异常，并且线程的中断标志会被清除。
 
-### 同一个锁支持创建多个Condition
+## 同一个锁支持创建多个Condition
 
 使用两个Condition来实现一个阻塞队列的例子：
 
@@ -496,7 +496,7 @@ public class BlockingQueueDemo<E> {
 
 代码非常容易理解，创建了一个阻塞队列，大小为3，队列满的时候，会被阻塞，等待其他线程去消费，队列中的元素被消费之后，会唤醒生产者，生产数据进入队列。上面代码将队列大小置为1，可以实现同步阻塞队列，生产1个元素之后，生产者会被阻塞，待消费者消费队列中的元素之后，生产者才能继续工作。
 
-### Object的监视器方法与Condition接口的对比
+## Object的监视器方法与Condition接口的对比
 
 对比项 | Object 监视器方法 | Condition
 ---|---|---
@@ -510,7 +510,7 @@ public class BlockingQueueDemo<E> {
 唤醒等待队列中的一个线程 | 支持 | 支持
 唤醒等待队列中的全部线程 | 支持 | 支持
 
-### 总结
+## 总结
 1. 使用condition的步骤：创建condition对象，获取锁，然后调用condition的方法;
 2. 一个ReentrantLock支持创建多个condition对象；
 3. ```void await() throws InterruptedException;```方法会释放锁，让当前线程等待，支持唤醒，支持线程中断；
