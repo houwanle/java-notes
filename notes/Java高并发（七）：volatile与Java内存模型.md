@@ -1,4 +1,4 @@
-## Java高并发（七）：volatile与Java内存模型
+# Java高并发（七）：volatile与Java内存模型
 
 ```java
 public class Demo09 {
