@@ -1,6 +1,6 @@
-## Java高并发（十一）：中断线程的几种方式
+# Java高并发（十一）：中断线程的几种方式
 
-### 通过一个变量控制线程中断
+## 通过一个变量控制线程中断
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -33,7 +33,7 @@ public class Demo1 {
 代码中启动了一个线程，线程的run方法中有个死循环，内部通过exit变量的值来控制是否退出。TimeUnit.SECONDS.sleep(3);让主线程休眠3秒，此处为什么使用TimeUnit？TimeUnit使用更方便一些，能够很清晰的控制休眠时间，底层还是转换为Thread.sleep实现的。程序有个重点：volatile关键字，exit变量必须通过这个修饰，如果把这个去掉，程序无法正常退出。volatile控制了变量在多线程中的可见性，关于volatile前面的文章中有介绍，此处就不再说了。
 
 
-### 通过线程自带的中断标志控制
+## 通过线程自带的中断标志控制
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -61,7 +61,7 @@ public class Demo2 {
 
 运行上面的程序，程序可以正常结束。线程内部有个中断标志，当调用线程的interrupt()实例方法之后，线程的中断标志会被置为true，可以通过线程的实例方法isInterrupted()获取线程的中断标志。
 
-### 线程阻塞状态中如何中断
+## 线程阻塞状态中如何中断
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -143,7 +143,7 @@ java.lang.InterruptedException: sleep interrupted
 3. run()方法中通过this.isInterrupted()来获取线程的中断标志，退出循环（break）
 
 
-### 总结
+## 总结
 
 1. 当一个线程处于被阻塞状态或者试图执行一个阻塞操作时，可以使用Thread.interrupt()方式中断该线程，注意此时将会抛出一个InterruptedException的异常，同时中断状态将会被复位(由中断状态改为非中断状态)
 2. 内部有循环体，可以通过一个变量来作为一个信号控制线程是否中断，注意变量需要volatile修饰
