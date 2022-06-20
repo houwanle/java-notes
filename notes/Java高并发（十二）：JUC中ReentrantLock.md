@@ -1,6 +1,6 @@
-## Java高并发（十二）：JUC中ReentrantLock
+# Java高并发（十二）：JUC中ReentrantLock
 
-### synchronized的局限性
+## synchronized的局限性
 
 synchronized是java内置的关键字，它提供了一种独占的加锁方式。synchronized的获取和释放锁由jvm实现，用户不需要显示的释放锁，非常方便，然而synchronized也有一定的局限性，例如：
 1. 当线程尝试获取锁的时候，如果获取不到锁会一直阻塞，这个阻塞的过程，用户无法控制
@@ -8,14 +8,14 @@ synchronized是java内置的关键字，它提供了一种独占的加锁方式�
 
 JDK1.5之后发布，加入了Doug Lea实现的java.util.concurrent包。包内提供了Lock类，用来提供更多扩展的加锁功能。Lock弥补了synchronized的局限，提供了更加细粒度的加锁功能。
 
-### ReentrantLock
+## ReentrantLock
 
 ReentrantLock是Lock的默认实现，在聊ReentranLock之前，我们需要先弄清楚一些概念：
 1. 可重入锁：可重入锁是指同一个线程可以多次获得同一把锁；ReentrantLock和关键字Synchronized都是可重入锁；
 2. 可中断锁：可中断锁是指线程在获取锁的过程中，是否可以将相应线程中断的操作。synchronized是不可中断的，ReentrantLock是可中断的；
 3. 公平锁和非公平锁：公平锁是指多个线程尝试获取同一把锁的时候，获取锁的顺序按照线程到达的先后顺序获取，而不是随机插队的方式获取。synchronized是非公平锁，而ReentrantLock是两种都可以实现，不过默认是非公平锁；
 
-### ReentrantLock基本使用
+## ReentrantLock基本使用
 
 我们使用3个线程来对一个共享变量++操作，先使用synchronized实现，然后使用ReentrantLock实现。
 
@@ -98,7 +98,7 @@ ReentrantLock的使用过程：
 
 对比上面的代码，与关键字synchronized相比，ReentrantLock锁有明显的操作过程，开发人员必须手动的指定何时加锁，何时释放锁，正是因为这样手动控制，ReentrantLock对逻辑控制的灵活度要远远胜于关键字synchronized，上面代码需要注意lock.unlock()一定要放在finally中，否则，若程序出现了异常，锁没有释放，那么其他线程就再也没有机会获取这个锁了。
 
-### ReentrantLock是可重入锁
+## ReentrantLock是可重入锁
 
 来验证一下ReentrantLock是可重入锁，实例代码：
 
@@ -147,7 +147,7 @@ public class Demo4 {
 1. lock()方法和unlock()方法需要成对出现，锁了几次，也要释放几次，否则后面的线程无法获取锁了；若将add中的unlock删除一个，上面代码运行将无法结束；
 2. unlock()方法放在finally中执行，保证不管程序是否有异常，锁必定会释放
 
-### ReentrantLock实现公平锁
+## ReentrantLock实现公平锁
 
 在大多数情况下，锁的申请都是非公平的，也就是说，线程1首先请求锁A，接着线程2也请求了锁A。那么当锁A可用时，是线程1可获得锁还是线程2可获得锁呢？这是不一定的，系统只是会从这个锁的等待队列中随机挑选一个，因此不能保证其公平性。这就好比买票不排队，大家都围在售票窗口前，售票员忙的焦头烂额，也顾及不上谁先谁后，随便找个人出票就完事了，最终导致的结果是，有些人可能一直买不到票。而公平锁，则不是这样，它会按照到达的先后顺序获得资源。公平锁的一大特点是：它不会产生饥饿现象，只要你排队，最终还是可以等到资源的；synchronized关键字默认是有jvm内部实现控制的，是非公平锁。而ReentrantLock运行开发者自己设置锁的公平性。
 
@@ -254,7 +254,7 @@ t3获得锁!
 
 可以看到t3可能会连续获得锁，结果是比较随机的，不公平的。
 
-### ReentrantLock获取锁的过程是可中断的
+## ReentrantLock获取锁的过程是可中断的
 
 对于synchronized关键字，如果一个线程在等待获取锁，最终只有2种结果：
 1. 要么获取到锁然后继续后面的操作
@@ -358,13 +358,13 @@ t2在31行一直获取不到lock1的锁，主线程中等待了5秒之后，t2�
 3. 触发InterruptedException异常之后，线程的中断标志会被清空，即置为false;
 4. 所以当线程调用interrupt()引发InterruptedException异常，中断标志的变化是:false->true->false
 
-### ReentrantLock锁申请等待限时
+## ReentrantLock锁申请等待限时
 
 申请锁等待限时是什么意思？一般情况下，获取锁的时间我们是不知道的，synchronized关键字获取锁的过程中，只能等待其他线程把锁释放之后才能够有机会获取到锁。所以获取锁的时间有长有短。如果获取锁的时间能够设置超时时间，那就非常好了。
 
 ReentrantLock刚好提供了这样功能，给我们提供了获取锁限时等待的方法```tryLock()```，可以选择传入时间参数，表示等待指定的时间，无参则表示立即返回锁申请的结果：true表示获取锁成功，false表示获取锁失败。
 
-#### tryLock无参方法
+### tryLock无参方法
 
 ```java
 public boolean tryLock()
@@ -422,7 +422,7 @@ public class Demo8 {
 
 可以看到t2获取成功，t1获取失败了，tryLock()是立即响应的，中间不会有阻塞。
 
-#### tryLock有参方法
+### tryLock有参方法
 
 可以明确设置获取锁的超时时间，该方法签名：
 
@@ -492,11 +492,11 @@ public class Demo7 {
 2. tryLock()方法，不管是否获取成功，都会立即返回；而有参的tryLock方法会尝试在指定的时间内去获取锁，中间会阻塞的现象，在指定的时间之后会不管是否能够获取锁都会返回结果;
 3. tryLock()方法不会响应线程的中断方法；而有参的tryLock方法会响应线程的中断方法，而触发InterruptedException异常，这个从2个方法的声明上可以可以看出来;
 
-### ReentrantLock其他常用的方法
+## ReentrantLock其他常用的方法
 
 isHeldByCurrentThread：实例方法，判断当前线程是否持有ReentrantLock的锁，上面代码中有使用过。
 
-### 获取锁的4种方法对比
+## 获取锁的4种方法对比
 
 获取锁的方法 | 是否立即响应(不会阻塞) | 是否响应中断
 ---|---|---
@@ -505,7 +505,7 @@ lockInterruptibly() | × | √
 tryLock() | √ | ×
 tryLock(long timeout, TimeUnit unit) | × | √
 
-### 总结
+## 总结
 1. ReentrantLock可以实现公平锁和非公平锁;
 2. ReentrantLock默认实现的是非公平锁;
 3. ReentrantLock的获取锁和释放锁必须成对出现，锁了几次，也要释放几次;
