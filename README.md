@@ -57,6 +57,7 @@
 - [Java高并发（十二）：JUC中ReentrantLock](./notes/Java高并发（十二）：JUC中ReentrantLock.md)
 - [Java高并发（十三）：JUC中的Condition](./notes/Java高并发（十三）：JUC中的Condition.md)
 - [Java高并发（十四）：JUC中的LockSupport工具类](./notes/Java高并发（十四）：JUC中的LockSupport工具类.md)
+- [Java高并发（十五）：JUC中的Semaphore（信号量）](./notes/Java高并发（十五）：JUC中的Semaphore（信号量）.md)
 
 ### Elastic Stack
 
