@@ -55,6 +55,7 @@
   * [Java高并发（十三）：JUC中的Condition](notes/Java高并发（十三）：JUC中的Condition.md)
   * [Java高并发（十四）：JUC中的LockSupport工具类](notes/Java高并发（十四）：JUC中的LockSupport工具类.md)
   * [Java高并发（十五）：JUC中的Semaphore（信号量）](notes/Java高并发（十五）：JUC中的Semaphore（信号量）.md)
+  * [Java高并发（十六）：JUC中的CountDownLatch](notes/Java高并发（十六）：JUC中的CountDownLatch.md)
 * [Elasticsearch]()
   * [ES（一）：Elasticsearch核心概念](notes/ES（一）：Elasticsearch核心概念.md)
   * [ES（二）：环境安装、健康值检查以及CRUD](notes/ES（二）：环境安装、健康值检查以及CRUD.md)
