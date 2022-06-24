@@ -60,6 +60,7 @@
 - [Java高并发（十五）：JUC中的Semaphore（信号量）](./notes/Java高并发（十五）：JUC中的Semaphore（信号量）.md)
 - [Java高并发（十六）：JUC中的CountDownLatch](./notes/Java高并发（十六）：JUC中的CountDownLatch.md)
 - [Java高并发（十七）：JUC中的循环栅栏CyclicBarrier](./notes/Java高并发（十七）：JUC中的循环栅栏CyclicBarrier.md)
+- [Java高并发（十八）：线程池](./notes/Java高并发（十八）：线程池.md)
 
 ## Elastic Stack
 
