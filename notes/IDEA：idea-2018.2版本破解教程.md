@@ -1,6 +1,5 @@
-## IDEA：idea-2018.2版本破解教程
+# IDEA：idea-2018.2版本破解教程
 1. 下载 idea-2018.2 和 JetbrainsCrack-2.10-release-enc.jar
-~~[下载地址](../toolkit/idea-2018.2/)~~
 
 2. 将下载的 `JetbrainsCrack-2.10-release-enc.jar` 包放到 idea-2018.2 的安装目录下 `D:\Software\idea-2018.2\bin`
 
