@@ -64,6 +64,7 @@
 - [Java高并发（十九）：JUC中的Executor框架详解1](./notes/Java高并发（十九）：JUC中的Executor框架详解1.md)
 - [Java高并发（二十）：JUC中的Executor框架详解2](./notes/Java高并发（二十）：JUC中的Executor框架详解2.md)
 - [Java高并发（二十一）：Java中的CAS](./notes/Java高并发（二十一）：Java中的CAS.md)
+- [Java高并发（二十二）：Java中的Unsafe类](./notes/Java高并发（二十二）：Java中的Unsafe类.md)
 
 ## Elastic Stack
 
