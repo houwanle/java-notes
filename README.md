@@ -66,6 +66,7 @@
 - [Java高并发（二十一）：Java中的CAS](./notes/Java高并发（二十一）：Java中的CAS.md)
 - [Java高并发（二十二）：Java中的Unsafe类](./notes/Java高并发（二十二）：Java中的Unsafe类.md)
 - [Java高并发（二十三）：JUC中的原子操作类](./notes/Java高并发（二十三）：JUC中的原子操作类.md)
+- [Java高并发（二十四）：ThreadLocal和InheritableThreadLocal](./notes/Java高并发（二十四）：ThreadLocal和InheritableThreadLocal.md)
 
 ## Elastic Stack
 
