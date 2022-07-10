@@ -68,6 +68,7 @@
 - [Java高并发（二十三）：JUC中的原子操作类](./notes/Java高并发（二十三）：JUC中的原子操作类.md)
 - [Java高并发（二十四）：ThreadLocal和InheritableThreadLocal](./notes/Java高并发（二十四）：ThreadLocal和InheritableThreadLocal.md)
 - [Java高并发（二十五）：JUC中的阻塞队列](./notes/Java高并发（二十五）：JUC中的阻塞队列.md)
+- [Java高并发（二十六）：JUC中一些常见的集合](./notes/Java高并发（二十六）：JUC中一些常见的集合.md)
 
 ## Elastic Stack
 
