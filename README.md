@@ -70,6 +70,7 @@
 - [Java高并发（二十五）：JUC中的阻塞队列](./notes/Java高并发（二十五）：JUC中的阻塞队列.md)
 - [Java高并发（二十六）：JUC中一些常见的集合](./notes/Java高并发（二十六）：JUC中一些常见的集合.md)
 - [Java高并发（二十七）：实战，接口太慢需要优化](./notes/Java高并发（二十七）：实战，接口太慢需要优化.md)
+- [Java高并发（二十八）：实战，构建日志系统](./notes/Java高并发（二十八）：实战，构建日志系统.md)
 
 ## Elastic Stack
 
