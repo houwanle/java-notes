@@ -69,6 +69,7 @@
   * [Java高并发（二十七）：实战，接口太慢需要优化](notes/Java高并发（二十七）：实战，接口太慢需要优化.md)
   * [Java高并发（二十八）：实战，构建日志系统](notes/Java高并发（二十八）：实战，构建日志系统.md)
   * [Java高并发（二十九）：实战，搞懂限流](notes/Java高并发（二十九）：实战，搞懂限流.md)
+  * [Java高并发（三十）：JUC中的CompletableFuture](notes/Java高并发（三十）：JUC中的CompletableFuture.md)
 * [Elasticsearch]()
   * [ES（一）：Elasticsearch核心概念](notes/ES（一）：Elasticsearch核心概念.md)
   * [ES（二）：环境安装、健康值检查以及CRUD](notes/ES（二）：环境安装、健康值检查以及CRUD.md)
