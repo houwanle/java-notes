@@ -74,6 +74,7 @@
 - [Java高并发（二十九）：实战，搞懂限流](./notes/Java高并发（二十九）：实战，搞懂限流.md)
 - [Java高并发（三十）：JUC中的CompletableFuture](./notes/Java高并发（三十）：JUC中的CompletableFuture.md)
 - [Java高并发（三十一）：等待线程完成的几种方式](./notes/Java高并发（三十一）：等待线程完成的几种方式.md)
+- [Java高并发（三十二）：原子操作增强类LongAdder、LongAccumulator](./notes/Java高并发（三十二）：原子操作增强类LongAdder、LongAccumulator.md)
 
 ## Elastic Stack
 
