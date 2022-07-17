@@ -73,6 +73,7 @@
   * [Java高并发（三十一）：等待线程完成的几种方式](notes/Java高并发（三十一）：等待线程完成的几种方式.md)
   * [Java高并发（三十二）：原子操作增强类LongAdder、LongAccumulator](notes/Java高并发（三十二）：原子操作增强类LongAdder、LongAccumulator.md)
   * [Java高并发（三十三）：演示公平锁和非公平锁](notes/Java高并发（三十三）：演示公平锁和非公平锁.md)
+  * [Java高并发（三十四）：谷歌提供的一些好用的并发工具类](notes/Java高并发（三十四）：谷歌提供的一些好用的并发工具类.md)
 * [Elasticsearch]()
   * [ES（一）：Elasticsearch核心概念](notes/ES（一）：Elasticsearch核心概念.md)
   * [ES（二）：环境安装、健康值检查以及CRUD](notes/ES（二）：环境安装、健康值检查以及CRUD.md)
