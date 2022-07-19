@@ -78,6 +78,7 @@
 - [Java高并发（三十三）：演示公平锁和非公平锁](./notes/Java高并发（三十三）：演示公平锁和非公平锁.md)
 - [Java高并发（三十四）：谷歌提供的一些好用的并发工具类](./notes/Java高并发（三十四）：谷歌提供的一些好用的并发工具类.md)
 - [Java高并发（三十五）：延迟队列DelayQueue详解](./notes/Java高并发（三十五）：延迟队列DelayQueue详解.md)
+- [Java高并发（三十六）：线程6种状态详解](./notes/Java高并发（三十六）：线程6种状态详解.md)
 
 ## Elastic Stack
 
