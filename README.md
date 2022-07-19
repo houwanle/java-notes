@@ -77,6 +77,7 @@
 - [Java高并发（三十二）：原子操作增强类LongAdder、LongAccumulator](./notes/Java高并发（三十二）：原子操作增强类LongAdder、LongAccumulator.md)
 - [Java高并发（三十三）：演示公平锁和非公平锁](./notes/Java高并发（三十三）：演示公平锁和非公平锁.md)
 - [Java高并发（三十四）：谷歌提供的一些好用的并发工具类](./notes/Java高并发（三十四）：谷歌提供的一些好用的并发工具类.md)
+- [Java高并发（三十五）：延迟队列DelayQueue详解](./notes/Java高并发（三十五）：延迟队列DelayQueue详解.md)
 
 ## Elastic Stack
 
