@@ -12,7 +12,8 @@
     "donate",
     "popup",
     "anchor-navigation-ex",
-    "local-video"
+    "local-video",
+    "auto-scroll-table"
   ],
   "pluginsConfig":{     
     "hide-element": {
@@ -53,6 +54,7 @@
     "donate": "文章底部打赏插件及配置",
     "popup": "点击图片时，打开新的网页用来查看高清大图",
     "anchor-navigation-ex": "Toc到侧边悬浮导航以及回到顶部按钮",
-    "local-video": "播放本地视频的插件（对视频格式有要求）"
+    "local-video": "播放本地视频的插件（对视频格式有要求）",
+    "auto-scroll-table": "为避免表格过宽，在过宽的表格页面中增加滚动条。"
   }
 }
