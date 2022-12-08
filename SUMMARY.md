@@ -84,6 +84,8 @@
   * [Linux：查看Linux版本信息](notes/Linux：查看Linux版本信息.md)
   * [Linux：CentOS7系统语言切换](notes/Linux：CentOS7系统语言切换.md)
   * [Linux：CentOS7系统时间修改](notes/Linux：CentOS7系统时间修改.md)
+* [Linux最常用命令]()
+  * [Linux最常用命令（一）：Linux操作系统安装](notes/Linux最常用命令（一）：Linux操作系统安装.md)
 * [Shell]()
   * [常用的Shell脚本](notes/常用的Shell脚本.md)
 * [Docker]()
