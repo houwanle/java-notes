@@ -95,6 +95,7 @@
 - [Linux最常用命令（三）：Linux命令操作](./notees/Linux最常用命令（三）：Linux命令操作.md)
 - [Linux最常用命令（四）：用户和用户组](./notes/Linux最常用命令（四）：用户和用户组.md)
 - [Linux最常用命令（五）：Linux进程管理](./notes/Linux最常用命令（五）：Linux进程管理.md)
+- [Linux最常用命令（六）：Linux其他常用命令](./notes/Linux最常用命令（六）：Linux其他常用命令.md)
 
 ## Shell
 - [常用的Shell脚本](./notes/常用的Shell脚本.md)
