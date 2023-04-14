@@ -18,7 +18,7 @@ Java的解释和编译是可以混合的。
   - java virtual machine specifications
   - https://docs.oracle.com/en/java/javase/13/
   - https://docs.oracle.com/javase/specs/index.html
-- 虚构出来的一台计算机
+- JVM是虚构出来的一台计算机
   - 字节码指令集（汇编语言）
   - 内存管理：栈 堆 方法区等
 
