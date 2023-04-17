@@ -1,4 +1,3 @@
-
 ## JVM（二）：class文件格式
 - 二进制字节流
 - 数据类型：u1 u2 u4 u8 和 _info（表类型）
@@ -29,3 +28,9 @@
 - 类文件的十六进制编码
 
   ![JVM（二）：类文件的十六进制编码](./pics/JVM（二）：类文件的十六进制编码.png)
+
+  - magic：
+  - minor version：小版本号
+  - major version：大版本号
+  - constant_pool_count：常量池中存在多少个常量（2个字节，65535）
+  - access flags：修饰符（public、private）
