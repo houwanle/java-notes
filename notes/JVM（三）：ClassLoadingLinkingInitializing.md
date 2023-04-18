@@ -1,4 +1,4 @@
-## JVM（三）：ClassLodingLinkingInitializing
+## JVM（三）：ClassLoadingLinkingInitializing
 
 ![JVM（三）：Class加载过程](./pics/JVM（三）：Class加载过程.png)
 
@@ -47,7 +47,7 @@
             }
         }
         ```
-    - 双亲委派，主要出于安全来考虑
+    - 双亲委派，主要出于安全来考虑（为什么要搞双亲委派）
       - 父加载器不是“类加载器的加载器”，也不是“类加载器的父类加载器”
       - 双亲委派是一个孩子向父亲方向，然后父亲向孩子方向的双亲委派过程。
     - lazyloading（lazyInitializing）必须初始化的五种情况：
@@ -87,7 +87,7 @@
           - 进行编译
       - -Xmixed 默认为混合模式，开始解释执行，启动速度较快对热点代码实行检测和编译
       - -Xint 使用纯解释模式，启动很快，执行较慢
-      - -Xcomp 使用纯编译模式，执行很快，启动很慢
+      - -Xcomp 使用纯编译模式，执行很快，启动很慢（很多类的时候）
       - -XX:CompileThreshold=10000 检测热点代码
   - Linking
     - Verification（校验）：验证文件是否符合JVM规定

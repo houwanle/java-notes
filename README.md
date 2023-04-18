@@ -9,7 +9,7 @@
 - [JVM：GC和GC-Tuning](./notes/JVM：GC和GC-Tuning.md)
 - [JVM（一）：JVM入门](./notes/JVM（一）：JVM入门.md)
 - [JVM（二）：class文件格式](./notes/JVM（二）：class文件格式.md)
-- [JVM（三）：Class Loding Linking Initializing](./notes/JVM（三）：ClassLodingLinkingInitializing.md)
+- [JVM（三）：Class Loding Linking Initializing](./notes/JVM（三）：ClassLoadingLinkingInitializing.md)
 - [JVM（四）：Java内存模型（JMM）](./notes/JVM（四）：Java内存模型（JMM）.md)
 - [JVM（五）：Java运行时数据区和常用指令](./notes/JVM（五）：Java运行时数据区和常用指令.md)
 
