@@ -331,19 +331,19 @@ java -XX:+PrintCommandLineFlags -version
 ```
 
 ###### 普通对象
-1. 对象头：markword  8
+1. 对象头：markword  8个字节
 2. ClassPointer指针：-XX:+UseCompressedClassPointers 为4字节 不开启为8字节
 3. 实例数据
   引用类型：-XX:+UseCompressedOops 为4字节 不开启为8字节
 Oops Ordinary Object Pointers
-4. Padding对齐，8的倍数
+4. Padding对齐，8的倍数，4个字节；
 
 ###### 数组对象
-1. 对象头：markword 8
+1. 对象头：markword 8个字节
 2. ClassPointer指针同上
 3. 数组长度：4字节
 4. 数组数据
-5. 对齐 8的倍数
+5. Padding对齐 8的倍数，4个字节
 
 ##### 实验
 - 新建项目ObjectSize （1.8）
@@ -427,9 +427,13 @@ project structure - project settings - library 添加该jar包
 ##### IdentityHashCode的问题
 回答白马非马的问题：
 当一个对象计算过identityHashCode之后，不能进入偏向锁状态
+
 https://cloud.tencent.com/developer/article/1480590
-https://cloud.tencent.com/developer/article/1484167
-https://cloud.tencent.com/developer/article/1485795
+
+https://cloud.tencent.com/developer/article/1484167 
+
+https://cloud.tencent.com/developer/article/1485795 
+
 https://cloud.tencent.com/developer/article/1482500
 
 ##### 对象定位
