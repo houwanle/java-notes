@@ -86,7 +86,7 @@
    1. YGC（young GC）回收之后，大多数的对象会被回收，活着的进入s0
    2. 再次YGC，活着的对象eden + s0 -> s1
    3. 再次YGC，eden + s1 -> s0
-   4. 年龄足够 -> 老年代 （15 CMS 6）
+   4. 年龄足够 -> 老年代 （Parallel Scavenge 15，CMS 6，G1  15）
    5. s区装不下 -> 老年代
 4. 老年代
    1. 顽固分子
@@ -161,14 +161,14 @@
 - Parallel New
   - STW（stop-the-world，停顿时间），然后清理垃圾
   - 年轻代；
-  - 配合CMS的并行回收
+  - 在Parallel Scavenge基础上做了一些增强，以便配合CMS的并行回收
 
   ![ParNew](./pics/GC和GC-Tuning_11.png)
 
 - SerialOld 老年代
 - ParallelOld 老年代
 - ConcurrentMarkSweep（CMS使用的是 三色标记+Incremental Update算法）：老年代 并发的， 垃圾回收和应用程序同时运行，降低STW的时间(200ms)
-  - 初始标记（多线程）：STW，只标记GC root上的不可回收的，垃圾不多，短时间能完成；
+  - 初始标记（单线程）：STW，只标记GC root上的不可回收的，垃圾不多，短时间能完成；
   - 并发标记：一边标记，一边清理，最浪费时间；
   - 重新标记（多线程）：STW，并发标记中产生的新垃圾需要重新标记，垃圾不多，短时间完成；
   - 并发清理：会产生新的垃圾（浮动垃圾需等下一次CMS来清掉）
@@ -184,7 +184,7 @@
       - 解决方案：降低触发CMS的阈值
     - PromotionFailed
       - 解决方案：保持老年代有足够的空间
-        - -XX:CMSInitiatingOccupancyFraction 92%：92%的时候会产生FGC，可以降低这个值，让CMS保持老年代足够的空间
+        - -XX:CMSInitiatingOccupancyFraction 92%：92%的时候会产生FGC，可以降低这个值，让CMS保持老年代足够的空间（68%，将FGC提前）
 - G1(10ms；jdk1.7才有，使用的是 三色标记+SATB算法)
   - https://www.oracle.com/technical-resources/articles/java/g1gc.html
   - G1是一种服务端应用使用的垃圾收集器，目标是用在多核、大内存的机器上，他在大多数情况下可以实现指定的GC暂停时间，同时还能保持较高的吞吐量；
@@ -236,7 +236,7 @@
         - 筛选回收 STW（并行）：筛选最需要回收的
 
 - ZGC (1ms，使用的是 ColoredPointers + 写屏障 算法) PK C++
-- Shenandoah
+- Shenandoah（使用的是 ColoredPointers + 读屏障）
 - Eplison（使用的是 ColoredPointers + 读屏障 算法）
 
 jdk1.8 默认的垃圾回收：PS + ParallelOld
