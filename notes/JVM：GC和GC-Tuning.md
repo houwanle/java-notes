@@ -611,17 +611,17 @@ waiting on <0x0000000088ca3310> (a java.lang.Object)
 9. jstat -gc 动态观察gc情况 / 阅读GC日志发现频繁GC / arthas观察 / jconsole/jvisualVM/ Jprofiler（最好用）
 jstat -gc 4655 500 : 每个500个毫秒打印GC的情况
 如果面试官问你是怎么定位OOM问题的？如果你回答用图形界面（错误）
-  - 已经上线的系统不用图形界面用什么？（cmdline arthas）
-  - 图形界面到底用在什么地方？测试！测试的时候进行监控！（压测观察）
+   - 已经上线的系统不用图形界面用什么？（cmdline arthas）
+   - 图形界面到底用在什么地方？测试！测试的时候进行监控！（压测观察）
 10. jmap - histo 4655 | head -20，查找4555进程的前20行，有多少对象产生；
-11. jmap -dump:format=b,file=xxx pid ：
+11. jmap -dump:format=b,file=xxx pid
 
-  ```
-  线上系统，内存特别大，jmap执行期间会对进程产生很大影响，甚至卡顿（电商不适合）
-  1：设定了参数HeapDump，OOM的时候会自动产生堆转储文件
-  2：很多服务器备份（高可用），停掉这台服务器对其他服务器不影响
-  3：在线定位(一般小点儿公司用不到)
-  ```
+    ```
+    线上系统，内存特别大，jmap执行期间会对进程产生很大影响，甚至卡顿（电商不适合）
+    1：设定了参数HeapDump，OOM的时候会自动产生堆转储文件
+    2：很多服务器备份（高可用），停掉这台服务器对其他服务器不影响
+    3：在线定位(一般小点儿公司用不到)
+    ```
 
 12. java -Xms20M -Xmx20M -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError com.mashibing.jvm.gc.T15_FullGC_Problem01
 13. 使用MAT / jhat /jvisualvm 进行dump文件分析
