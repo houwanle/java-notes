@@ -7,18 +7,18 @@
 
 Column | Meaning
 --- | ---
-id | The SELECT identifier
-select_type | The SELECT type
-table | The table for the output row
-partitions | The matching partitions
+id | The SELECT identifier select查询的序列号，包含一组数字，表示查询中执行select子句或者操作表的顺序;
+select_type | The SELECT type 主要用来分辨查询的类型，是普通查询还是联合查询还是子查询。
+table | The table for the output row 对应行正在访问哪一个表，表名或者别名，可能是临时表或者union合并结果集；
+partitions | The matching partitions 
 type | The join type
-possible_keys | The possible indexes to choose
-key | The index actually chosen
-key_len | The length of the chosen key
-ref | The columns compared to the index
-rows | Estimate of rows to be examined
+possible_keys | The possible indexes to choose 显示可能应用在这张表中的索引，一个或多个，查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询实际使用；
+key | The index actually chosen 实际使用的索引，如果为null，则没有使用索引，查询中若使用了覆盖索引，则该索引和查询的select字段重叠。
+key_len | The length of the chosen key 表示索引中使用的字节数，可以通过key_len计算查询中使用的索引长度，在不损失精度的情况下长度越短越好。
+ref | The columns compared to the index 显示索引的哪一列被使用了，如果可能的话，是一个常数;
+rows | Estimate of rows to be examined 根据表的统计信息及索引使用情况，大致估算出找出所需记录需要读取的行数，此参数很重要，直接反应的sql找了多少数据，在完成目的的情况下越少越好；
 filtered | Percentage of rows filtered by table condition
-extra | Additional information
+extra | Additional information 包含额外的信息
 
 #### 1. id
 select查询的序列号，包含一组数字，表示查询中执行select子句或者操作表的顺序;
