@@ -576,8 +576,10 @@ text不设置长度，当不知道属性的最大长度时，适合用text;按�
 5. union all,in,or都能够使用索引，但是推荐使用in；
 
     ```sql
+    --能用union all就尽量使用
     explain select * from actor where actor_id = 1 union all select * from actor where actor_id = 2;
-
+    
+    --从执行计划上看，此条sql与第三条sql执行的情况是一样的，但此条sql的执行时间更短
     explain select * from actor where actor_id in (1,2);
 
     explain select * from actor where actor_id = 1 or actor_id =2;
@@ -607,6 +609,21 @@ text不设置长度，当不知道属性的最大长度时，适合用text;按�
     - 一般区分度在80%以上的时候就可以建立索引，区分度可以使用 count(distinct(列名))/count(*) 来计算；
 9. 创建索引的列，不允许为null，可能会得到不符合预期的结果；
 10. 当需要进行表连接的时候，最好不要超过三张表，因为需要join的字段，数据类型必须一致；
+
+    ```sql
+    select * from t1 join t2 t1.id = t2.id and t1.name = '张三';
+
+    select * from t1 join t2 on t1.id = t2.id where t1.name = '张三';
+
+    结论：
+    当使用内连接的时候，两种方式一样；
+
+    当使用左外连接的时候，会把左表的数据全部查出；
+    当使用右外连接的时候，会把右表的数据全部查出；
+
+    and 则是在表连接前过滤A表或B表里面哪些记录符合连接条件，同时兼顾是left join 还是right join。即假如是左连接的话，如果左边表的某条记录不符合连接条件，那么它不进行连接，但是仍然留在结果集中（此时右边部分的连接结果为NULL）。on条件是在生成临时表时使用的条件，它不管on中的条件是否为真，都会返回左边表中的记录
+    ```
+
 11. 能使用limit的时候尽量使用limit；
 12. 单表索引建议控制在5个以内；
 13. 单索引字段数不允许超过5个（组合索引）；
@@ -628,6 +645,8 @@ show status like 'Handler_read%';
 - Handler_read_prev：通过索引读取上一条数据的次数；
 - Handler_read_rnd：从固定位置读取数据的次数；
 - Handler_read_rnd_next：从数据节点读取下一条数据的次数
+
+Handler_read_key和Handler_read_rnd_next的值比较大的话（越大越好），说明建立的索引比较好，效率高；
 
 
 #### 8. 简单案例
