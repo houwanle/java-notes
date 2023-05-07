@@ -30,6 +30,7 @@
 - [MySQL调优（三）：MySQL执行计划](./notes/MySQL调优（三）：MySQL执行计划.md)
 - [MySQL调优（四）：sakila数据库说明](./notes/MySQL调优（四）：sakila数据库说明.md)
 - [MySQL的锁机制](./notes/MySQL的锁机制.md)
+- [MySQL：MySQL练习题](./notes/MySQL：MySQL练习题.md)
 
 ## 多线程与高并发
 - [多线程与高并发（一）：基础概念](./notes/多线程与高并发（一）：基础概念.md)
