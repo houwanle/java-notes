@@ -35,6 +35,7 @@
 ## Redis
 - [Redis（一）：Redis介绍及NIO原理介绍](./notes/Redis（一）：Redis介绍及NIO原理介绍.md)
 - [Redis（二）：Redis的String类型和bitmap](./notes/Redis（二）：Redis的String类型和bitmap.md)
+- [Redis（三）：Redis的list、set、hash、sorted_set、skiplist](./notes/Redis（三）：Redis的list、set、hash、sorted_set、skiplist.md)
 
 ## 多线程与高并发
 - [多线程与高并发（一）：基础概念](./notes/多线程与高并发（一）：基础概念.md)
