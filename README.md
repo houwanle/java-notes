@@ -32,6 +32,10 @@
 - [MySQL的锁机制](./notes/MySQL的锁机制.md)
 - [MySQL：MySQL练习题](./notes/MySQL：MySQL练习题.md)
 
+## Redis
+- [Redis（一）：Redis介绍及NIO原理介绍](./notes/Redis（一）：Redis介绍及NIO原理介绍.md)
+- [Redis（二）：Redis的String类型和bitmap](./notes/Redis（二）：Redis的String类型和bitmap.md)
+
 ## 多线程与高并发
 - [多线程与高并发（一）：基础概念](./notes/多线程与高并发（一）：基础概念.md)
 - [多线程与高并发（一）：线程基础知识](./notes/多线程与高并发（一）：线程基础知识.md)
