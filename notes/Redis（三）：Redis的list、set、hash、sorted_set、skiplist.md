@@ -287,6 +287,8 @@ sean::age
 - sunionstore:
 - sdiff:差集，左差还是右差取决于谁放在前面
 - spop:取出一个元素（不再放回）
+- zincrby:根据元素增加其分值
+- zunionsstore:并集
 
   ```bash
   sadd k1 tom sean peter ooxx tom xxoo
@@ -347,13 +349,17 @@ sean::age
 
 ## sorted set
 - 去重，排序
-- 物理内存，左小右大
+- 物理内存，左小右大，不随命令发生变化（zrange/zrevrange）
+- 集合操作（并集、交集），权重和聚合
+- 排序是怎么实现的，增删改查的速度：skip list(跳跃表)
 
 **sorted set常用操作**
 - zadd:增加元素
 - zrange:按照索引取出元素
 - zrangebyscore:按照分值取出元素
 - zrevrange:
+- zscore:通过元素取出其分值
+- zrank:通过元素取出其排名
 
 
 
@@ -390,4 +396,59 @@ zrevrange k1 0 1
 #结果
 apple
 orange
+
+zscore k1 apple
+#结果
+8
+
+zrank k1 apple
+#结果
+2
+
+#给banana的分值增加2.5
+zincrby k1 2.5 banana
+#结果
+4.5
+
+
+zadd k1 80tom 60 sean 70 baby
+zadd k2 60 tom 100 sean 40 yiming
+
+zunionstore unkey 2 k1 k2
+zrange unkey 0 -1 withsocres
+#结果
+yiming
+40
+baby
+70
+tom
+140
+sean 
+160
+
+#加权重
+zunionstore unkey1 2 k1 k2 weights 1 0.5
+zrange unkey1 0 -1 withscores
+#结果
+yiming
+20
+baby
+70
+sean
+110
+tom
+110
+
+#求最大值
+zunionstore unkey1 2 k1 k2 aggregate max
+zrange unkey1 0 -1 withscores
+#结果
+yiming
+40
+baby
+70
+tom
+80
+sean
+100
 ```
