@@ -37,6 +37,7 @@
 - [Redis（二）：Redis的String类型和bitmap](./notes/Redis（二）：Redis的String类型和bitmap.md)
 - [Redis（三）：Redis的list、set、hash、sorted_set、skiplist](./notes/Redis（三）：Redis的list、set、hash、sorted_set、skiplist.md)
 - [Redis（四）：消息订阅、pipeline、事务、modules、布隆过滤器和缓存LRU](./notes/Redis（四）：消息订阅、pipeline、事务、modules、布隆过滤器和缓存LRU.md)
+- [Redis（五）：持久化RDB、fork、copyonwrite、AOF、RDB与AOF混合使用](./notes/Redis（五）：持久化RDB、fork、copyonwrite、AOF、RDB与AOF混合使用.md)
 
 ## 多线程与高并发
 - [多线程与高并发（一）：基础概念](./notes/多线程与高并发（一）：基础概念.md)
