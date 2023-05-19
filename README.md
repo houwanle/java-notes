@@ -38,6 +38,7 @@
 - [Redis（三）：Redis的list、set、hash、sorted_set、skiplist](./notes/Redis（三）：Redis的list、set、hash、sorted_set、skiplist.md)
 - [Redis（四）：消息订阅、pipeline、事务、modules、布隆过滤器和缓存LRU](./notes/Redis（四）：消息订阅、pipeline、事务、modules、布隆过滤器和缓存LRU.md)
 - [Redis（五）：持久化RDB、fork、copyonwrite、AOF、RDB与AOF混合使用](./notes/Redis（五）：持久化RDB、fork、copyonwrite、AOF、RDB与AOF混合使用.md)
+- [Redis（六）：主从复制、CAP、PAXOS、cluster分片集群](./notes/Redis（六）：主从复制、CAP、PAXOS、cluster分片集群.md)
 
 ## 多线程与高并发
 - [多线程与高并发（一）：基础概念](./notes/多线程与高并发（一）：基础概念.md)
