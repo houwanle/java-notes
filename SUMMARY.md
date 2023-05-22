@@ -29,6 +29,7 @@
   * [MySQL调优（三）：MySQL执行计划](notes/MySQL调优（三）：MySQL执行计划.md)
   * [MySQL调优（四）：sakila数据库说明](notes/MySQL调优（四）：sakila数据库说明.md)
   * [MySQL：事务和事务隔离级别](notes/MySQL：事务和事务隔离级别.md)
+  * [MySQL：MVCC](notes/MySQL：MVCC.md)
   * [MySQL的锁机制](notes/MySQL的锁机制.md)
   * [MySQL：MySQL练习题](notes/MySQL：MySQL练习题.md)
 * [Redis]()
