@@ -95,6 +95,9 @@
 
 ## Elastic Stack
 
+## Spring Boot
+- [SpringBoot：SpringBoot的自动装配](./notes/SpringBoot：SpringBoot的自动装配.md)
+
 
 ## Linux
 - [Linux：查看Linux版本信息](./notes/Linux：查看Linux版本信息.md)

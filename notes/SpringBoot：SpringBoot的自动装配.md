@@ -1,0 +1,15 @@
+# SpringBoot：SpringBoot的自动装配
+
+## 大致流程
+1. 当启动SpringBoot应用程序的时候，会先创建SpringApplication对象，在构造方法中会进行一些参数的初始化工作，比如会加载Spring.factories文件，将文件的内容放到缓存对象中，方便后续获取;
+2. SpringApplication对象创建完成后，开始调用run方法，启动过程中最主要有两个方法，第一个叫prepareContext()，第二个叫refreshContext()方法;
+3. 在prepareContext()方法主要是对上下文对象;ConfigurableApplicationContext的初始化操作，在整个过程中有个非常重要的方法就是load()方法，它会将当前启动类作为一个BeanDefinition注册到BeanDefinitionMap中，方便后续在进行BeanFactoryPostProcessor调用执行的时候，找到对应的启动类，来完成对应注解的解析工作;
+4. 在refreshContext()方法会进行整个Spring容器的刷新refresh操作，会调用spring的refresh()方法，自动装配过程是在invokeBeanFactoryPostProcessor方法()中进行（也就是执行BeanFactory的后置处理器），在此方法主要是针对ConfigurationClassPostProcessor类的处理;
+5. 在执行BeanFactory后置处理器的时候会调用ConfigurationClassPostProcessor类中的parse()方法去解析处理各种注解比如@CompomentScan、@Import等等
+6. 在解析@Import注解的时候比较特别，会有一个collectImports()方法，从主类开始递归解析注解，把所有包含@Import的注解都解析到BeanDefinitionMap中;
+7. 调用AutoConfigurationImportSelector类（相当于一个处理器）中的process()方法进而触发getCandidateConfigurations()方法获取Spring.factories文件下的key为EnableAutoConfiguration的所有value，所以这就是为什么很多人的文章中都说Springboot的自动装配就是调用@EnableAutoConfiguration注解下的@Import中的AutoConfigurationImportSelector类，主要就是通过这种不断解析注解的方法去调用的;
+8. 将所有解析到的注解的类都注册到BeanDifinitionMap中
+9. 至此就完成了SpringBoot的自动装配
+
+
+> 参考连接：https://blog.csdn.net/weixin_42119730/article/details/127522419

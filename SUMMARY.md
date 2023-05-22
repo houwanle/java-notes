@@ -91,6 +91,8 @@
 * [Elasticsearch]()
   * [ES（一）：Elasticsearch核心概念](notes/ES（一）：Elasticsearch核心概念.md)
   * [ES（二）：环境安装、健康值检查以及CRUD](notes/ES（二）：环境安装、健康值检查以及CRUD.md)
+* [Spring Boot]()
+  * [SpringBoot：SpringBoot的自动装配](notes/SpringBoot：SpringBoot的自动装配.md)
 * [Linux]()
   * [Linux：查看Linux版本信息](notes/Linux：查看Linux版本信息.md)
   * [Linux：CentOS7系统语言切换](notes/Linux：CentOS7系统语言切换.md)
