@@ -241,7 +241,7 @@ sean::age
     ```bash
     sadd k1 tom ooxx xxoo xoxo oxox xoox oxxo
 
-    ##########一个人最多只能中一件礼物########
+    #一个人最多只能中一件礼物
     srandmember k1 3
     #返回随机3个去重的结果
     tom
@@ -254,7 +254,7 @@ sean::age
     tom
     oxox
 
-    ##########一个人最多只能中一件礼物########
+    #一个人最多只能中一件礼物
 
     srandmember k1 -3
     #
@@ -268,13 +268,11 @@ sean::age
     ooxx
     oxox
 
-    ##############抽奖的人少于礼物数或取名字###############
+    #抽奖的人少于礼物数或取名字
     srandmember k1 -20
 
-    #######年会抽奖######
+    #年会抽奖
     spop k1
-
-
     ```
 
 **Set常用操作**
@@ -294,7 +292,7 @@ sean::age
   sadd k1 tom sean peter ooxx tom xxoo
 
   smembers k1
-  #结果
+  结果
   sean
   tom
   ooxx
@@ -303,7 +301,7 @@ sean::age
 
   srem k1 ooxx xxoo
   smembers k1
-  #结果
+  结果
   tom
   peter
   sean
@@ -313,18 +311,18 @@ sean::age
   sadd k3 4 5 6 7 8
 
   sinter k2 k3
-  #结果
+  结果
   4
   5
 
   sinterstore dest k2 k3
   smembers dest
-  #结果
+  结果
   4
   5
 
   sunion k2 k3
-  #结果
+  结果
   1
   2
   3
@@ -335,13 +333,13 @@ sean::age
   8
 
   sdiff k2 k3
-  #结果
+  结果
   1
   2
   3
 
   sdiff k3 k2
-  #结果
+  结果
   6
   7
   8
