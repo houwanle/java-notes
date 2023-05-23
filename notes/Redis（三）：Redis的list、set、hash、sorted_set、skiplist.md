@@ -288,20 +288,20 @@ sean::age
 - zincrby:根据元素增加其分值
 - zunionsstore:并集
 
-  ```bash
+---
+
+  ```
   sadd k1 tom sean peter ooxx tom xxoo
 
   smembers k1
-  结果
-  sean
-  tom
-  ooxx
-  peter
-  xxoo
+  sean 
+  tom 
+  ooxx 
+  peter 
+  xxoo 
 
   srem k1 ooxx xxoo
   smembers k1
-  结果
   tom
   peter
   sean
@@ -311,18 +311,15 @@ sean::age
   sadd k3 4 5 6 7 8
 
   sinter k2 k3
-  结果
   4
   5
 
   sinterstore dest k2 k3
   smembers dest
-  结果
   4
   5
 
   sunion k2 k3
-  结果
   1
   2
   3
@@ -333,19 +330,21 @@ sean::age
   8
 
   sdiff k2 k3
-  结果
   1
   2
   3
 
   sdiff k3 k2
-  结果
   6
   7
   8
   ```
 
-## sorted set
+---
+
+
+
+## sorted set ##
 - 去重，排序
 - 物理内存，左小右大，不随命令发生变化（zrange/zrevrange）
 - 集合操作（并集、交集），权重和聚合
@@ -361,92 +360,92 @@ sean::age
 
 
 
-```bash
-zadd k1 8 apple 2 banana 3 orange
+  ```bash
+  zadd k1 8 apple 2 banana 3 orange
 
-zrange k1 0 -1
-#结果
-banana
-orange
-apple
+  zrange k1 0 -1
+  #结果
+  banana
+  orange
+  apple
 
-zrange k1 0 -1 withscores
-#结果
-banana
-2
-orange
-3
-apple
-8
+  zrange k1 0 -1 withscores
+  #结果
+  banana
+  2
+  orange
+  3
+  apple
+  8
 
-zrangebyscore k1 3 8
-#结果
-orange
-apply
+  zrangebyscore k1 3 8
+  #结果
+  orange
+  apply
 
-zrange k1 0 -1
-#结果
-banana
-orange
+  zrange k1 0 -1
+  #结果
+  banana
+  orange
 
-#取出分值由高到底的前两个元素
-zrevrange k1 0 1
-#结果
-apple
-orange
+  #取出分值由高到底的前两个元素
+  zrevrange k1 0 1
+  #结果
+  apple
+  orange
 
-zscore k1 apple
-#结果
-8
+  zscore k1 apple
+  #结果
+  8
 
-zrank k1 apple
-#结果
-2
+  zrank k1 apple
+  #结果
+  2
 
-#给banana的分值增加2.5
-zincrby k1 2.5 banana
-#结果
-4.5
+  #给banana的分值增加2.5
+  zincrby k1 2.5 banana
+  #结果
+  4.5
 
 
-zadd k1 80tom 60 sean 70 baby
-zadd k2 60 tom 100 sean 40 yiming
+  zadd k1 80tom 60 sean 70 baby
+  zadd k2 60 tom 100 sean 40 yiming
 
-zunionstore unkey 2 k1 k2
-zrange unkey 0 -1 withsocres
-#结果
-yiming
-40
-baby
-70
-tom
-140
-sean 
-160
+  zunionstore unkey 2 k1 k2
+  zrange unkey 0 -1 withsocres
+  #结果
+  yiming
+  40
+  baby
+  70
+  tom
+  140
+  sean 
+  160
 
-#加权重
-zunionstore unkey1 2 k1 k2 weights 1 0.5
-zrange unkey1 0 -1 withscores
-#结果
-yiming
-20
-baby
-70
-sean
-110
-tom
-110
+  #加权重
+  zunionstore unkey1 2 k1 k2 weights 1 0.5
+  zrange unkey1 0 -1 withscores
+  #结果
+  yiming
+  20
+  baby
+  70
+  sean
+  110
+  tom
+  110
 
-#求最大值
-zunionstore unkey1 2 k1 k2 aggregate max
-zrange unkey1 0 -1 withscores
-#结果
-yiming
-40
-baby
-70
-tom
-80
-sean
-100
-```
+  #求最大值
+  zunionstore unkey1 2 k1 k2 aggregate max
+  zrange unkey1 0 -1 withscores
+  #结果
+  yiming
+  40
+  baby
+  70
+  tom
+  80
+  sean
+  100
+  ```
