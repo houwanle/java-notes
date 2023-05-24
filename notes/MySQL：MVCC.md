@@ -260,6 +260,8 @@ update teacher set domain='RocketMQ' where number=30;
 select * from teacher where number = 30;
 ```
 
+  ![MySQL：幻读现象及原因](./pics/MySQL：幻读现象及原因.png)
+
 事务T1很明显出现了幻读现象。 在REPEATABLE READ隔离级别下，T1第一次执行普通的SELECT 语句时生成了一个ReadView（但是版本链没有），之后T2向teacher 表中新插入一条记录并提交，然后T1也进行了一个update语句。 ReadView并不能阻止T1执行UPDATE 或者DELETE 语句来改动这个新插入的记录，但是这样一来，这条新记录的trx_id隐藏列的值就变成了T1的事务id。
 
 之后T1再使用普通的SELECT 语句去查询这条记录时就可以看到这条记录了，也就可以把这条记录返回给客户端。因为这个特殊现象的存在，我们也可以认为MVCC 并不能完全禁止幻读（就是第一次读如果是空的情况，且在自己事务中进行了该条数据的修改）。
