@@ -270,6 +270,11 @@
       - windows lock 指令实现 | MESI实现
 
 - synchronized实现细节
+  > synchronized 是由JVM实现的一种实现互斥同步的一种方式，被synchronized修饰过的程序块，在编译前后被编译器生成了monitorenter和monitorexit两个字节码指令。
+  > - 在虚拟机执行到monitorenter指令时，首先要尝试获取对象的锁：如果这个对象没有锁定，或者当前线程已经拥有了这个对象的锁，把锁的计数器+1；当执行monitorexit指令时将锁计数器-1；当计数器为0时，锁就被释放了。如果获取对象失败了，那当前线程就要阻塞等待，直到对象锁被另外一个线程释放为止。java中synchronized通过在对象头设置标记，达到了获取锁和释放锁的目的。
+  >    - “锁”的本质是monitorenter和monitorexit的一个Reference类型的参数，即要锁定和解锁的对象：
+  >      - 如果synchronized明确指定了锁对象，比如synchronized(变量名)、synchronized(this)等，说明加锁对象为该对象。
+  >      - 如果没有明确指定：若synchronized修饰的方法为非静态方法，表示此方法对应的对象为锁对象；若synchronized修饰的方法为静态方法，则表示此方法对应的类对象为锁对象。注意，当一个对象被锁住时，对象里面所有用synchronized修饰的方法都将产生阻塞，而对象里非synchronized修饰的方法可正常被调用，不受锁影响。
   1. 字节码层面
       - ACC_SYNCHRONIZED
       - monitorenter monitorexit
