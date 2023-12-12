@@ -1,6 +1,6 @@
 ## 常用的Shell脚本
 
-### 1. 数据库相关Shell脚本
+### 数据库相关Shell脚本
 
 - MySQL数据库备份单循环
 
@@ -118,7 +118,7 @@ mysqldump -u "$user" -p "$passwd" "$dbname" > /mysqlbackup/"$dbname"-${date}.sql
 
 ---
 
-### 2. Nginx相关的Shell脚本
+### Nginx相关的Shell脚本
 
 - Nginx访问日志按天切割
 
@@ -2821,3 +2821,135 @@ awk '{chars+=length($0)+1;words+=NF} END{print NR,words,chars}' $1
   #查看redis监听端口
   netstat -tanp|grep redis
   ```
+
+
+### 其他
+
+- 检查系统负载：编写一个脚本以检查系统的负载情况，并在超过阈值时发送警报。可使用 uptime 命令和条件语句来实现。
+
+```bash
+#!/bin/bash
+threshold=1.0
+load=$(uptime | awk -F'[, ]+' '{print $(NF-2)}')
+if (( $(echo "$load > $threshold" | bc -l) )); then
+    echo "系统负载过高: $load" | mail -s "系统负载警报" admin@example.com
+fi
+```
+
+---
+
+- 备份文件：编写一个脚本以定期备份指定目录的文件。可以使用 cp 命令和 cron 作业调度程序来完成。
+
+```bash
+#!/bin/bash
+backup_dir="/path/to/backup"
+source_dir="/path/to/source"
+timestamp=$(date +%Y%m%d%H%M%S)
+backup_file="backup_$timestamp.tar.gz"
+tar czf "$backup_dir/$backup_file" "$source_dir"
+```
+
+---
+
+- 清理日志文件：编写一个脚本以清理旧的日志文件，保留最近的一段时间内的文件。可以使用 find 命令和条件语句来实现。
+
+```bash
+#!/bin/bash
+log_dir="/path/to/logs"
+days_to_keep=7
+find "$log_dir" -type f -name "*.log" -mtime +$days_to_keep -delete
+```
+
+---
+
+- 监控服务状态：编写一个脚本以监控关键服务的运行状态，并在服务异常时发送警报。可以使用 systemctl 命令和条件语句来实现。
+
+```bash
+#!/bin/bash
+service_name="nginx"
+if ! systemctl is-active --quiet "$service_name"; then
+    echo "服务 $service_name 未运行" | mail -s "服务状态警报" admin@example.com
+fi
+```
+
+---
+
+- 自动化部署：编写一个脚本以自动化部署应用程序或配置文件到多台服务器。可以使用 rsync 命令和循环结构来实现。
+
+```bash
+#!/bin/bash
+servers=("server1" "server2" "server3")
+source_dir="/path/to/source"
+destination_dir="/path/to/destination"
+for server in "${servers[@]}"; do
+    rsync -avz "$source_dir" "$server:$destination_dir"
+done
+```
+
+---
+
+- 监控磁盘空间：编写一个脚本以监控系统磁盘空间使用情况，并在空间不足时发送警报。可以使用 df 命令和条件语句来实现。
+
+```bash
+#!/bin/bash
+threshold=90
+df_output=$(df -h)
+while read -r line; do
+    usage=$(echo "$line" | awk '{print $5}' | sed 's/%//')
+    if (( usage > threshold )); then
+        echo "磁盘空间不足: $line" | mail -s "磁盘空间警报" admin@example.com
+    fi
+done <<< "$df_output"
+```
+
+---
+
+- 清理临时文件：编写一个脚本以定期清理临时目录中的过期文件。可以使用 find 命令和条件语句来实现。
+
+```bash
+#!/bin/bash
+temp_dir="/path/to/temp"
+expiration_days=3
+find "$temp_dir" -type f -mtime +$expiration_days -delete
+```
+
+---
+
+- 监控网络连通性：编写一个脚本以监控关键网络服务的连通性，并在服务不可访问时发送警报。可以使用 ping 命令和条件语句来实现。
+
+```bash
+#!/bin/bash
+service_ip="192.168.0.1"
+if ! ping -c 1 -W 1 "$service_ip" > /dev/null; then
+    echo "无法访问服务: $service_ip" | mail -s "网络连通性警报" admin@example.com
+fi
+```
+
+---
+
+- 批量重命名文件：编写一个脚本以批量重命名目录中的文件。可以使用循环结构和 mv 命令来实现。
+
+```bash
+#!/bin/bash
+directory="/path/to/files"
+prefix="new_file"
+count=1
+for file in "$directory"/*; do
+    new_file_name="$directory/$prefix$count"
+    mv "$file" "$new_file_name"
+    ((count++))
+done
+```
+
+---
+
+- 启动/停止服务：编写一个脚本以同时启动或停止多个服务。可以使用 systemctl 命令和循环结构来实现。
+
+```bash
+#!/bin/bash
+services=("service1" "service2" "service3")
+action="start"  # 或者 "stop"
+for service in "${services[@]}"; do
+    systemctl "$action" "$service"
+done
+```
