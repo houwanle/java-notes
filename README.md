@@ -15,7 +15,7 @@
 - [JVM（五）：Java运行时数据区和常用指令](./notes/JVM（五）：Java运行时数据区和常用指令.md)
 
 ## Spring
-
+- [Spring(一)：IoC](./notes/Spring(一)：IoC.md)
 
 ## JVM工具
 - [JVM工具（一）：jps-虚拟机进程状态工具](./notes/JVM工具（一）：jps-虚拟机进程状态工具.md)
