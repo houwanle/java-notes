@@ -32,3 +32,19 @@ IoC容器是工厂模式的实例，IoC容器负责来创建类实例对象，�
 
 
 ## IoC实现
+IoC的核心就是Bean工厂，那么Bean工厂应该如何设计实现它呢？
+
+### Bean工厂的作用
+首先Bean工厂的作用，上面分析了就是创建、管理Bean，并且需要对外提供Bean的实例。
+
+![Spring（一）：IoC_5.png](./pics/Spring（一）：IoC_5.png)
+
+### Bean工厂的初步设计
+基于Bean工厂的基本作用，我们可以分析Bean工厂应该具备的相关行为。
+
+首先Bean工厂应该要对外提供获取bean实例的方法，所以需要定义一个 getBean() 方法，同时工厂需要知道生产的 bean 的类型，所以 getBean() 方法需要接受对应的参数，同时返回类型这块也可能有多个类型，我们就用 Object 来表示，这样 Bean 工厂的定义就出来了。
+
+![Spring（一）：IoC_6.png](./pics/Spring（一）：IoC_6.png)
+
+上面定义了 Bean 工厂对外提供 bean 实例的方法，但是 Bean 工厂如何知道要创建上面对象，怎么创建该对象呢？
+
