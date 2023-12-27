@@ -70,3 +70,96 @@ IoC的核心就是Bean工厂，那么Bean工厂应该如何设计实现它呢？
 ![Spring（一）：IoC_9.png](./pics/Spring（一）：IoC_9.png)
 
 这样一来我们就清楚了 BeanDefinition 应该要具有的基本功能了。
+
+![Spring（一）：IoC_10.png](./pics/Spring（一）：IoC_10.png)
+
+#### 增强功能要求
+当然我们可以在现有的基础上增强要求，比如 Bean 工厂创建的是单例对象，具有特定的初始化方法和销毁逻辑的方法。
+
+![Spring（一）：IoC_11.png](./pics/Spring（一）：IoC_11.png)
+
+同时创建 BeanDefinition 的一个通用实现类：GenericBeanDefinition。
+
+![Spring（一）：IoC_12.png](./pics/Spring（一）：IoC_12.png)
+
+具体代码为：
+
+```java
+/**
+ * bean定义接口
+ */
+public interface BeanDefinition {
+
+    String SCOPE_SINGLETION = "singleton";
+
+    String SCOPE_PROTOTYPE = "prototype";
+
+    /**
+     * 类
+     */
+    Class<?> getBeanClass();
+
+    /**
+     * Scope
+     */
+    String getScope();
+
+    /**
+     * 是否单例
+     */
+    boolean isSingleton();
+
+    /**
+     * 是否原型
+     */
+    boolean isPrototype();
+
+    /**
+     * 工厂bean名
+     */
+    String getFactoryBeanName();
+
+    /**
+     * 工厂方法名
+     */
+    String getFactoryMethodName();
+
+    /**
+     * 初始化方法
+     */
+    String getInitMethodName();
+
+    /**
+     * 销毁方法
+     */
+    String getDestroyMethodName();
+
+    boolean isPrimary();
+
+    /**
+     * 校验bean定义的合法性
+     */
+    default boolean validate() {
+        // 没定义class,工厂bean或工厂方法没指定，则不合法。
+        if (this.getBeanClass() == null) {
+            if (StringUtils.isBlank(getFactoryBeanName()) || StringUtils.isBlank(getFactoryMethodName())) {
+                return false;
+            }
+        }
+
+        // 定义了类，又定义工厂bean，不合法
+        if (this.getBeanClass() != null && StringUtils.isNotBlank(getFactoryBeanName())) {
+            return false;
+        }
+        return true;
+    }
+
+}
+```
+
+### Bean的注册
+
+Bean的定义清楚后，我们要考虑的就是如何实现BeanDefinition和BeanFactory的关联了。
+
+
+
