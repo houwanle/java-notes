@@ -48,3 +48,25 @@ IoC的核心就是Bean工厂，那么Bean工厂应该如何设计实现它呢？
 
 上面定义了 Bean 工厂对外提供 bean 实例的方法，但是 Bean 工厂如何知道要创建上面对象，怎么创建该对象呢？
 
+![Spring（一）：IoC_7.png](./pics/Spring（一）：IoC_7.png)
+
+所以在这里我们得把 Bean 的定义信息告诉 BeanFactory，然后 BeanFactory 工厂根据 Bean 的定义信息来生成对应的 bean 实例对象。所以在这儿我们需要考虑两个问题：
+ - 我们需要定义一个模型来表示该如何创建 Bean 实例的信息，也就是 Bean 定义。
+ - Bean 工厂需要提供行为来接收这些 Bean 的定义信息。
+
+
+ ### Bean的定义
+ 根据上面的接收，我们就清除了 Bean 的定义的意义了。那么我们来定义 Bean 定义的模型要考虑几个问题。
+
+ #### Bean定义的作用是什么
+ 作用肯定是告诉 Bean 工厂应该如何来创建某类的 Bean 实例。
+
+ #### 获取实例的方式有哪些
+
+ ![Spring（一）：IoC_8.png](./pics/Spring（一）：IoC_8.png)
+
+#### BeanDeinition中给Bean工厂提供哪些信息
+
+![Spring（一）：IoC_9.png](./pics/Spring（一）：IoC_9.png)
+
+这样一来我们就清楚了 BeanDefinition 应该要具有的基本功能了。
