@@ -161,5 +161,32 @@ public interface BeanDefinition {
 
 Bean的定义清楚后，我们要考虑的就是如何实现BeanDefinition和BeanFactory的关联了。
 
+![Spring（一）：IoC_13.png](./pics/Spring（一）：IoC_13.png)
+
+在这儿我们可以专门定义一个 `BeanDefinitionRegistry` 来实现Bean定义的注册功能。
+
+![Spring（一）：IoC_14.png](./pics/Spring（一）：IoC_14.png)
+
+那么我们需要考虑 BeanDefinitionRegistry 应该具备的功能，其实也简单就两个：
+- 注册 BeanDefinition
+- 获取 BeanDefinition
+
+同时为了保证能够区分每个BeanDefinition的定义信息，我们得给每一个Bean定义一个唯一的名称。
+
+![Spring（一）：IoC_15.png](./pics/Spring（一）：IoC_15.png)
+
+具体实现代码：
+
+```java
+public interface BeanDefinitionRegistry {
+
+	void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionRegistException;
+
+	BeanDefinition getBeanDefinition(String beanName);
+
+	boolean containsBeanDefinition(String beanName);
+}
+```
+
 
 
