@@ -14,9 +14,6 @@
 - [JVM（四）：Java内存模型（JMM）](./notes/JVM（四）：Java内存模型（JMM）.md)
 - [JVM（五）：Java运行时数据区和常用指令](./notes/JVM（五）：Java运行时数据区和常用指令.md)
 
-## Spring
-- [Spring(一)：IoC](./notes/Spring(一)：IoC.md)
-
 ## JVM工具
 - [JVM工具（一）：jps-虚拟机进程状态工具](./notes/JVM工具（一）：jps-虚拟机进程状态工具.md)
 - [JVM工具（二）：jstat-虚拟机统计信息监控工具](./notes/JVM工具（二）：jstat-虚拟机统计信息监控工具.md)
@@ -26,6 +23,9 @@
 - [JVM工具（六）：jstack-java堆栈跟踪工具](./notes/JVM工具（六）：jstack-java堆栈跟踪工具.md)
 - [JVM工具（七）：jconsole-java监视与管理控制台](./notes/JVM工具（七）：jconsole-java监视与管理控制台.md)
 - [JVM工具（八）：jvisualvm-多合一故障处理工具](./notes/JVM工具（八）：jvisualvm-多合一故障处理工具.md)
+
+## Spring
+- [Spring(一)：手写IoC](./notes/Spring(一)：手写IoC.md)
 
 ## MySQL
 - [MySQL：数据库设计规范](./notes/MySQL：数据库设计规范.md)
