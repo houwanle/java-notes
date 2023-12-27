@@ -188,5 +188,27 @@ public interface BeanDefinitionRegistry {
 }
 ```
 
+### BeanFactory实现
+到现在为止我们来看看已经实现的相关设计功能：
+
+![Spring（一）：IoC_16.png](./pics/Spring（一）：IoC_16.png)
+
+通过上面的分析我们接下来就要考虑BeanFactory的功能实现了。
+我们先来实现一个最基础的默认的Bean工厂：DefaultBeanFactory。
+需要DefaultBeanFactory实现如下的5个功能:
+- 实现Bean定义信息的注册
+- 实现Bean工厂定义的getBean方法
+- 实现初始化方法的执行
+- 实现单例的要求
+- 实现容器关闭是执行单例的销毁操作
+
+
+![Spring（一）：IoC_17.png](./pics/Spring（一）：IoC_17.png)
+
+思考：对于单例bean，我们可否提前实例化?
+
+![Spring（一）：IoC_18.png](./pics/Spring（一）：IoC_18.png)
+
+
 
 
