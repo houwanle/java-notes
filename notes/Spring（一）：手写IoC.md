@@ -193,14 +193,14 @@ public interface BeanDefinitionRegistry {
 
 ![Spring（一）：IoC_16.png](./pics/Spring（一）：IoC_16.png)
 
-通过上面的分析我们接下来就要考虑BeanFactory的功能实现了。
-我们先来实现一个最基础的默认的Bean工厂：DefaultBeanFactory。
-需要DefaultBeanFactory实现如下的5个功能:
-- 实现Bean定义信息的注册
-- 实现Bean工厂定义的getBean方法
-- 实现初始化方法的执行
-- 实现单例的要求
-- 实现容器关闭是执行单例的销毁操作
+通过上面的分析我们接下来就要考虑 BeanFactory 的功能实现了。
+我们先来实现一个最基础的默认的 Bean 工厂：DefaultBeanFactory。
+需要 DefaultBeanFactory 实现如下的5个功能:
+1. 实现Bean定义信息的注册
+2. 实现Bean工厂定义的getBean方法
+3. 实现初始化方法的执行
+4. 实现单例的要求
+5. 实现容器关闭是执行单例的销毁操作
 
 
 ![Spring（一）：IoC_17.png](./pics/Spring（一）：IoC_17.png)
@@ -210,5 +210,58 @@ public interface BeanDefinitionRegistry {
 ![Spring（一）：IoC_18.png](./pics/Spring（一）：IoC_18.png)
 
 
+## IoC增强
+
+### Bean别名的增强
+Bean 除了标识唯一的名称外，还可以有任意个别名，别名也是唯一的。
+
+别名的特点：
+1. 可以有多个别名；
+2. 也可以是别名的别名；
+3. 别名也是唯一的；
 
 
+实现的时候需要考虑的问题：
+1. 数据结构；
+2. 功能点
+
+  ![Spring（一）：IoC_19.png](./pics/Spring（一）：IoC_19.png)
+
+
+### Type类型的增强
+上面实现的是根据 bean的 `name`来获取Bean实例，我们还希望能扩展通过 `Type`来获取实例对象。这时对应的接口为：
+
+  ![Spring（一）：IoC_20.png](./pics/Spring（一）：IoC_20.png)
+
+也就是需要实现根据Type找到Bean对象的功能。正常的实例逻辑为：
+
+  ![Spring（一）：IoC_21.png](./pics/Spring（一）：IoC_21.png)
+
+但是上面的实现方案有点吃性能，我们可以尝试优化下，我们可以提前把Type和Bean的对应关系找出来，然后用Map缓存起来处理。对应的存储方式通过Map来处理。
+
+需要考虑几个问题：
+1. Map中存储的数据用什么合适？
+2. type和bean是一对一的关系吗？
+3. 何时建立该关系呢？
+
+  ![Spring（一）：IoC_22.png](./pics/Spring（一）：IoC_22.png)
+
+
+  ```java
+  private Map<Class<?>, Set<String>> typeMap = new ConcurrentHashMap<>(256);
+  ```
+
+具体的实现我们可以在DefaultBeanFactory中添加一个buildTypeMap()方法来处理这个事情。
+
+  ![Spring（一）：IoC_23.png](./pics/Spring（一）：IoC_23.png)
+
+buildTypeMap()方法处理的逻辑如下：
+
+  ![Spring（一）：IoC_24.png](./pics/Spring（一）：IoC_24.png)
+
+然后我们在BeanFactory中添加一个getType方法，封装获取Bean的Type的逻辑，方便buildTypeMap()方法的使用。最后就是getBean(Class<T>) 方法的实现了。因为Class对应的类型可能有多个，这时需要通过Primary来处理了。
+
+
+IoC容器-核心部分类图
+
+  ![Spring（一）：IoC_25.png](./pics/Spring（一）：IoC_25.png)
