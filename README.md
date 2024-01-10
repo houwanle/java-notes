@@ -25,7 +25,8 @@
 - [JVM工具（八）：jvisualvm-多合一故障处理工具](./notes/JVM工具（八）：jvisualvm-多合一故障处理工具.md)
 
 ## Spring
-- [Spring(一)：手写IoC](./notes/Spring(一)：手写IoC.md)
+- [Spring（一）：手写IoC](./notes/Spring（一）：手写IoC.md)
+- [Spring（二）：手写DI](./notes/Spring（二）：手写DI.md)
 
 ## MySQL
 - [MySQL：数据库设计规范](./notes/MySQL：数据库设计规范.md)
