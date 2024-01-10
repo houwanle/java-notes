@@ -3,4 +3,4 @@ _book/
 node_modules/
 
 # 需要忽略的文件
-.DS_Store:
+.DS_Store
