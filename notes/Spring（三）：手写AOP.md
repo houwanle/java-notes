@@ -209,6 +209,19 @@ public interface MethodInterceptor extends Advice {
 - 可能需要方法所属的对象 Object
 - 可能需要方法的参数 Object[]
 
-**它的返回值是什么?**
+**它的返回值是什么?**  
+这个就需要看是否允许在After中更改返回的结果，如果规定只可用、不可修改返回值就不需要返回值。
+
+```java
+public interface ThrowsAdvice extends Advice {
+
+    void afterThrowing(Method method, Object[] args, Object target, Exception ex) throws Throwable;
+}
+```
+
+#### Advice设计
+结合上面的分析，我们就可以得出Advice的体系图了
+
+![Spring（三）：手写AOP_12.png](./pics/Spring（三）：手写AOP_12.png)
 
 
