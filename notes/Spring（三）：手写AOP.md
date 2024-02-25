@@ -315,3 +315,70 @@ AspectJ官网：http://www.eclipse.org/aspectj
 > execution(* *. .service.*.*(. .))
 >
 > 指定所有包下的serivce子包下所有类(接口)中的所有方法为切入点
+
+
+#### Pointcut设计
+
+- 思考1：首先考虑切入点应该具有的属性---->切入点表达式
+- 思考2：切入点应对外提供什么行为
+- 思考3：切入点被我们设计用来做什么？
+
+对类和方法进行匹配，切入点应该提供匹配类，匹配方法的行为。
+
+- 思考4：如果在我们设计的框架中要能灵活的扩展切点，我们应该如何设计？
+
+这又是一个要支持可多变的问题，像通知一样，我们定义一套标准接口，定义好基本行为，面向接口编程，屏蔽掉具体的实现。不管哪些方案，都实现匹配类，匹配方法的接口。
+
+![Spring（三）：手写AOP_18.png](./pics/Spring（三）：手写AOP_18.png)
+
+案例代码
+
+```java
+public interface Pointcut {
+
+	boolean matchsClass(Class<?> targetClass);
+
+	boolean matchsMethod(Method method, Class<?> targetClass);
+}
+```
+
+然后来看看AspectJ的实现
+
+![Spring（三）：手写AOP_19.png](./pics/Spring（三）：手写AOP_19.png)
+
+
+案例代码
+
+```java
+public class AspectJExpressionPointcut implements Pointcut {
+
+	private static PointcutParser pp = PointcutParser
+			.getPointcutParserSupportingAllPrimitivesAndUsingContextClassloaderForResolution();
+
+	private String expression;
+
+	private PointcutExpression pe;
+
+	public AspectJExpressionPointcut(String expression) {
+		super();
+		this.expression = expression;
+		pe = pp.parsePointcutExpression(expression);
+	}
+
+	@Override
+	public boolean matchsClass(Class<?> targetClass) {
+		return pe.couldMatchJoinPointsInType(targetClass);
+	}
+
+	@Override
+	public boolean matchsMethod(Method method, Class<?> targetClass) {
+		ShadowMatch sm = pe.matchesMethodExecution(method);
+		return sm.alwaysMatches();
+	}
+
+	public String getExpression() {
+		return expression;
+	}
+
+}
+```
