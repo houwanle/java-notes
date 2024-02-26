@@ -26,6 +26,8 @@
 * [Spring]()
   * [Spring（一）：手写IoC](notes/Spring（一）：手写IoC.md)
   * [Spring（二）：手写DI](notes/Spring（二）：手写DI.md)
+  * [Spring（三）：手写AOP](notes/Spring（三）：手写AOP.md)
+  * [Spring（四）：手写Bean配置](notes/Spring（四）：手写Bean配置.md)
 * [MySQL]()
   * [MySQL：数据库设计规范](notes/MySQL：数据库设计规范.md)
   * [MySQL调优（一）：概述](notes/MySQL调优（一）：概述.md)
