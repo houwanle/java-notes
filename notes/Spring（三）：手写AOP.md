@@ -382,3 +382,72 @@ public class AspectJExpressionPointcut implements Pointcut {
 
 }
 ```
+
+### 切面Aspect
+
+搞定了两个难点后，我们来看看用户该如何使用我们提供的东西
+
+![Spring（三）：手写AOP_20.png](./pics/Spring（三）：手写AOP_20.png)
+
+为此我们需要创建对应的接口来管理。
+
+
+### Advisor
+
+为用户提供更简单的外观，Advisor(通知者)组合Advice和Pointcut。
+
+![Spring（三）：手写AOP_21.png](./pics/Spring（三）：手写AOP_21.png)
+
+当然扩展形式比较多：
+
+![Spring（三）：手写AOP_22.png](./pics/Spring（三）：手写AOP_22.png)
+
+或者：
+
+![Spring（三）：手写AOP_23.png](./pics/Spring（三）：手写AOP_23.png)
+
+
+## 织入实现
+
+### 织入的分析
+
+织入要完成的是什么？织入其实就是要把用户提供的增强功能加到指定的方法上。
+
+![Spring（三）：手写AOP_24.png](./pics/Spring（三）：手写AOP_24.png)
+
+**思考1：在什么时候织入？**  
+> 创建Bean实例的时候，在Bean初始化后，再对其进行增强。
+
+**思考2：如何确定bean要增强？**
+> 对bean类及方法挨个匹配用户配置的切面，如果有切面匹配就是要增强。
+
+**思考3：如何实现织入？**
+> 代理方式
+
+### 织入的设计
+为了更好的去设计织入的实现，先整理下AOP的使用流程。
+
+![Spring（三）：手写AOP_25.png](./pics/Spring（三）：手写AOP_25.png)
+
+这里我们要考虑匹配、织入逻辑写到哪里？是写在BeanFactory中吗?
+
+这时我们要考虑如果我们直接在BeanFactory中来处理，后续如果还有其他的需求是不是也要在BeanFactory中处理呢？这样操作有什么不好的地方呢？
+
+- BeanFactory代码爆炸，不专情
+- 不易扩展
+
+
+我们先回顾下Bean的生产过程
+
+![Spring（三）：手写AOP_26.png](./pics/Spring（三）：手写AOP_26.png)
+
+在这个过程中，将来会有更多处理逻辑加入到Bean生产过程的不同阶段。我们现在最好是设计出能让我们后面不用再改BeanFactory的代码就能灵活的扩展。
+
+这时我们可以考虑用观察者模式，通过在各个节点加入扩展点，加入注册机制。
+
+![Spring（三）：手写AOP_27.png](./pics/Spring（三）：手写AOP_27.png)
+
+那么在这块我们就应用观察者模式来加入一个Bean的后置处理器 BeanPostProcessor
+
+![Spring（三）：手写AOP_28.png](./pics/Spring（三）：手写AOP_28.png)
+
