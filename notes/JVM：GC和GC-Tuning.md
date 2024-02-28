@@ -189,7 +189,7 @@
   ![JVM：G1原理性模型](./pics/JVM：G1原理性模型.png)
 
   - 每个分区都可能是年轻代也可能是老年代，但是在同一时刻只能属于某个代。
-  - 年轻代、幸存区、老年代这些概念还存在，称为逻辑上的概念，这样方便复用之前分代框架的逻辑。在物理上不需要连续，则带来了额外的好处——有的分区内垃圾对象特别多，有的分区内垃圾特别少，G1会优先回收垃圾对象特别多的分区，这样可以花费较少的时间来回收这些分区的垃圾，这也就是G1名字的由来，即首先手机垃圾最多的分区。
+  - 年轻代、幸存区、老年代这些概念还存在，称为逻辑上的概念，这样方便复用之前分代框架的逻辑。在物理上不需要连续，则带来了额外的好处——有的分区内垃圾对象特别多，有的分区内垃圾特别少，G1会优先回收垃圾对象特别多的分区，这样可以花费较少的时间来回收这些分区的垃圾，这也就是G1名字的由来，即首先收集垃圾最多的分区。
   - 新生代其实并不是适用于这种算法的，依然是在新生代满了的时候，对整个新生代进行回收——整个新生代中的对象，要么被回收、要么晋升，至于新生代也采取分区机制的原因，则是因为这样跟老年代的策略统一，方便调整代的大小。
   - G1还是一种带压缩的收集器，在回收老年代的分区时，是将存活的对象从一个分区拷贝到另一个可用分区，这个拷贝的过程就实现了局部的压缩。每个分区的大小从1M到32M不等，但都是2的幂次方。
   - 特点：
@@ -219,7 +219,7 @@
     - YGC -> 到达45%(MixedGC默认阈值) -> MixedGC是G1的正常回收过程
     - YGC：Eden区空间不足；多线程并行执行；
     - FGC：Old区空间不足；System.gc()；G1的FGC用的是serial
-  - 如果产生FGc，你应该做什么？
+  - 如果产生FGC，你应该做什么？
     - 扩内存
     - 提高CPU性能（回收的快，业务逻辑产生对象的速度固定，垃圾回收越快，内存空间越大）
     - 降低MixedGC（相当于CMS）触发的阈值，让MixedGC提早发生（默认是45%）
@@ -258,7 +258,7 @@ jdk1.8 默认的垃圾回收：PS + ParallelOld
   - 这个组合已经很少用（在某些版本中已经废弃）
   - https://stackoverflow.com/questions/34962257/why-remove-support-for-parnewserialold-anddefnewcms-in-the-future
 - -XX:+UseConc(urrent)MarkSweepGC = ParNew + CMS + Serial Old
-- -XX:+UseParallelGC = Parallel Scavenge + Parallel Old (1.8默认) 【PS + SerialOld】
+- -XX:+UseParallelGC = Parallel Scavenge + Parallel Old (1.8默认) 
 - -XX:+UseParallelOldGC = Parallel Scavenge + Parallel Old
 - -XX:+UseG1GC = G1
 - Linux中没找到默认GC的查看方法，而windows中会打印UseParallelGC
