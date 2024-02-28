@@ -29,6 +29,8 @@
   * [Spring（三）：手写AOP](notes/Spring（三）：手写AOP.md)
   * [Spring（四）：手写Bean配置](notes/Spring（四）：手写Bean配置.md)
   * [Spring（五）：ApplicationContext](notes/Spring（五）：ApplicationContext.md)
+  * [Spring（六）：初始化过程](notes/Spring（六）：初始化过程.md)
+  * [Spring（七）：Bean的实例化](notes/Spring（七）：Bean的实例化.md)
 * [MySQL]()
   * [MySQL：数据库设计规范](notes/MySQL：数据库设计规范.md)
   * [MySQL调优（一）：概述](notes/MySQL调优（一）：概述.md)
