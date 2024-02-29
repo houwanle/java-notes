@@ -120,4 +120,99 @@ public class BeanK {
 	}
 ```
 
-### 
+### 循环依赖
+
+接下来我们看看在构造注入的情况下。对循环依赖的检测是怎么做的。前面我们分析过，在构造注入的情况下，对于循环依赖是没有办法解决的。只能检测，然后抛出对应的异常信息。
+
+```java
+@Component
+public class BeanL {
+
+    private BeanM beanM;
+
+    @Autowired
+    public BeanL(BeanM beanM) {
+        this.beanM = beanM;
+    }
+}
+
+@Component
+public class BeanM {
+    private BeanL beanL;
+
+    @Autowired
+    public BeanM(BeanL beanL) {
+        this.beanL = beanL;
+    }
+}
+```
+
+然后启动代码看到循环依赖的报错
+
+![Spring（八）：DI的过程_3.png](./pics/Spring（八）：DI的过程_3.png)
+
+然后我们来看看他是如何实现循环检测的。
+
+![Spring（八）：DI的过程_4.png](./pics/Spring（八）：DI的过程_4.png)
+
+进入到这个 `beforeSingletonCreation` 方法中。
+
+```java
+	protected void beforeSingletonCreation(String beanName) {
+		// 如果当前在创建检查中的排除bean名列表中不包含该beanName且将beanName添加到当前正在创建的bean名称列表后，出现
+		// beanName已经在当前正在创建的bean名称列表中添加过
+		if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.add(beanName)) {
+			// 抛出当前正在创建的Bean异常
+			throw new BeanCurrentlyInCreationException(beanName);
+		}
+	}
+```
+
+然后当对象创建完成后。会异常对应的检测
+
+![Spring（八）：DI的过程_5.png](./pics/Spring（八）：DI的过程_5.png)
+
+```java
+	protected void afterSingletonCreation(String beanName) {
+		// 如果当前在创建检查中的排除bean名列表中不包含该beanName且将beanName从当前正在创建的bean名称列表异常后，出现
+		// beanName已经没在当前正在创建的bean名称列表中出现过
+		if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.remove(beanName)) {
+			// 抛出非法状态异常：单例'beanName'不是当前正在创建的
+			throw new IllegalStateException("Singleton '" + beanName + "' isn't currently in creation");
+		}
+	}
+```
+
+当然上面的针对单例的处理，如果是原型的话。我们继续来看。
+
+```java
+// 原型模式的bean对象创建
+				else if (mbd.isPrototype()) {
+					// It's a prototype -> create a new instance.
+					// 它是一个原型 -> 创建一个新实例
+					// 定义prototype实例
+					Object prototypeInstance = null;
+					try {
+						// 创建Prototype对象前的准备工作，默认实现将beanName添加到prototypesCurrentlyInCreation中
+						beforePrototypeCreation(beanName);
+						// 为mbd(和参数)创建一个bean实例
+						prototypeInstance = createBean(beanName, mbd, args);
+					}
+					finally {
+						// 创建完prototype实例后的回调，默认是将beanName从prototypesCurrentlyInCreation移除
+						afterPrototypeCreation(beanName);
+					}
+					// 从beanInstance中获取公开的Bean对象，主要处理beanInstance是FactoryBean对象的情况，如果不是
+					// FactoryBean会直接返回beanInstance实例
+					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
+				}
+```
+
+![Spring（八）：DI的过程_6.png](./pics/Spring（八）：DI的过程_6.png)
+
+而且我们可以发现在原型对象的检测中使用的是ThreadLocal来存储了。
+
+![Spring（八）：DI的过程_7.png](./pics/Spring（八）：DI的过程_7.png)
+
+## 属性依赖
+
