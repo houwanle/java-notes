@@ -216,3 +216,182 @@ public class BeanM {
 
 ## 属性依赖
 
+然后我们来看看Bean的属性依赖的处理。属性依赖的具体方法是 `polulateBean`。
+
+```java
+	protected void populateBean(String beanName, RootBeanDefinition mbd, @Nullable BeanWrapper bw) {
+		// 如果beanWrapper为空
+		if (bw == null) {
+			// 如果mbd有需要设置的属性
+			if (mbd.hasPropertyValues()) {
+				// 抛出bean创建异常
+				throw new BeanCreationException(
+						mbd.getResourceDescription(), beanName, "Cannot apply property values to null instance");
+			}
+			else {
+				// Skip property population phase for null instance.
+				// 没有可填充的属性，直接跳过
+				return;
+			}
+		}
+
+		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
+		// state of the bean before properties are set. This can be used, for example,
+		// to support styles of field injection.
+		// 给任何实现了InstantiationAwareBeanPostProcessors的子类机会去修改bean的状态再设置属性之前，可以被用来支持类型的字段注入
+
+		// 否是"synthetic"。一般是指只有AOP相关的pointCut配置或者Advice配置才会将 synthetic设置为true
+		// 如果mdb是不是'syntheic'且工厂拥有InstantiationAwareBeanPostProcessor
+		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+			//遍历工厂中的BeanPostProcessor对象
+			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+				//如果 bp 是 InstantiationAwareBeanPostProcessor 实例
+				if (bp instanceof InstantiationAwareBeanPostProcessor) {
+					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+					// //postProcessAfterInstantiation：一般用于设置属性
+					if (!ibp.postProcessAfterInstantiation(bw.getWrappedInstance(), beanName)) {
+						return;
+					}
+				}
+			}
+		}
+		//PropertyValues：包含以一个或多个PropertyValue对象的容器，通常包括针对特定目标Bean的一次更新
+		//如果mdb有PropertyValues就获取其PropertyValues
+ 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
+
+		// 获取 mbd 的 自动装配模式
+		int resolvedAutowireMode = mbd.getResolvedAutowireMode();
+		// 如果 自动装配模式 为 按名称自动装配bean属性 或者 按类型自动装配bean属性
+		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
+			//MutablePropertyValues：PropertyValues接口的默认实现。允许对属性进行简单操作，并提供构造函数来支持从映射 进行深度复制和构造
+			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
+			// Add property values based on autowire by name if applicable.
+			// 根据autotowire的名称(如适用)添加属性值
+			if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
+				//通过bw的PropertyDescriptor属性名，查找出对应的Bean对象，将其添加到newPvs中
+				autowireByName(beanName, mbd, bw, newPvs);
+			}
+			// Add property values based on autowire by type if applicable.
+			// 根据自动装配的类型(如果适用)添加属性值
+			if (resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
+				//通过bw的PropertyDescriptor属性类型，查找出对应的Bean对象，将其添加到newPvs中
+				autowireByType(beanName, mbd, bw, newPvs);
+			}
+			//让pvs重新引用newPvs,newPvs此时已经包含了pvs的属性值以及通过AUTOWIRE_BY_NAME，AUTOWIRE_BY_TYPE自动装配所得到的属性值
+			pvs = newPvs;
+		}
+
+		//工厂是否拥有InstiationAwareBeanPostProcessor
+		boolean hasInstAwareBpps = hasInstantiationAwareBeanPostProcessors();
+		//mbd.getDependencyCheck()，默认返回 DEPENDENCY_CHECK_NONE，表示 不检查
+		//是否需要依赖检查
+		boolean needsDepCheck = (mbd.getDependencyCheck() != AbstractBeanDefinition.DEPENDENCY_CHECK_NONE);
+
+		//经过筛选的PropertyDesciptor数组,存放着排除忽略的依赖项或忽略项上的定义的属性
+		PropertyDescriptor[] filteredPds = null;
+		//如果工厂拥有InstiationAwareBeanPostProcessor,那么处理对应的流程，主要是对几个注解的赋值工作包含的两个关键子类是CommonAnnoationBeanPostProcessor,AutowiredAnnotationBeanPostProcessor
+		if (hasInstAwareBpps) {
+			//如果pvs为null
+			if (pvs == null) {
+				//尝试获取mbd的PropertyValues
+				pvs = mbd.getPropertyValues();
+			}
+			//遍历工厂内的所有后置处理器
+			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+				//如果 bp 是 InstantiationAwareBeanPostProcessor 的实例
+				if (bp instanceof InstantiationAwareBeanPostProcessor) {
+					//将bp 强转成 InstantiationAwareBeanPostProcessor 对象
+					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+					//postProcessProperties:在工厂将给定的属性值应用到给定Bean之前，对它们进行后处理，不需要任何属性扫描符。该回调方法在未来的版本会被删掉。
+					// -- 取而代之的是 postProcessPropertyValues 回调方法。
+					// 让ibp对pvs增加对bw的Bean对象的propertyValue，或编辑pvs的proertyValue
+					PropertyValues pvsToUse = ibp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
+					//如果pvs为null
+					if (pvsToUse == null) {
+						//如果filteredPds为null
+						if (filteredPds == null) {
+							//mbd.allowCaching:是否允许缓存，默认时允许的。缓存除了可以提高效率以外，还可以保证在并发的情况下，返回的PropertyDesciptor[]永远都是同一份
+							//从bw提取一组经过筛选的PropertyDesciptor,排除忽略的依赖项或忽略项上的定义的属性
+							filteredPds = filterPropertyDescriptorsForDependencyCheck(bw, mbd.allowCaching);
+						}
+						//postProcessPropertyValues:一般进行检查是否所有依赖项都满足，例如基于"Require"注释在 bean属性 setter，
+						// 	-- 替换要应用的属性值，通常是通过基于原始的PropertyValues创建一个新的MutablePropertyValue实例， 添加或删除特定的值
+						// 	-- 返回的PropertyValues 将应用于bw包装的bean实例 的实际属性值（添加PropertyValues实例到pvs 或者 设置为null以跳过属性填充）
+						//回到ipd的postProcessPropertyValues方法
+						pvsToUse = ibp.postProcessPropertyValues(pvs, filteredPds, bw.getWrappedInstance(), beanName);
+						//如果pvsToUse为null，将终止该方法精致，以跳过属性填充
+						if (pvsToUse == null) {
+							return;
+						}
+					}
+					//让pvs引用pvsToUse
+					pvs = pvsToUse;
+				}
+			}
+		}
+		//如果需要依赖检查
+		if (needsDepCheck) {
+			//如果filteredPds为null
+			if (filteredPds == null) {
+				//从bw提取一组经过筛选的PropertyDesciptor,排除忽略的依赖项或忽略项上的定义的属性
+				filteredPds = filterPropertyDescriptorsForDependencyCheck(bw, mbd.allowCaching);
+			}
+			//检查依赖项：主要检查pd的setter方法需要赋值时,pvs中有没有满足其pd的需求的属性值可供其赋值
+			checkDependencies(beanName, mbd, filteredPds, pvs);
+		}
+
+		//如果pvs不为null
+		if (pvs != null) {
+			//应用给定的属性值，解决任何在这个bean工厂运行时其他bean的引用。必须使用深拷贝，所以我们 不会永久地修改这个属性
+			applyPropertyValues(beanName, mbd, bw, pvs);
+		}
+	}
+
+```
+
+
+### 提前暴露
+
+看看是如何处理循环依赖的
+
+![Spring（八）：DI的过程_8.png](./pics/Spring（八）：DI的过程_8.png)
+
+对应的 `addSingletonFactory` 方法
+
+```java
+	protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
+		Assert.notNull(singletonFactory, "Singleton factory must not be null");
+		// 使用singletonObjects进行加锁，保证线程安全
+		synchronized (this.singletonObjects) {
+			// 如果单例对象的高速缓存【beam名称-bean实例】没有beanName的对象
+			if (!this.singletonObjects.containsKey(beanName)) {
+				// 将beanName,singletonFactory放到单例工厂的缓存【bean名称 - ObjectFactory】
+				this.singletonFactories.put(beanName, singletonFactory);
+				// 从早期单例对象的高速缓存【bean名称-bean实例】 移除beanName的相关缓存对象
+				this.earlySingletonObjects.remove(beanName);
+				// 将beanName添加已注册的单例集中
+				this.registeredSingletons.add(beanName);
+			}
+		}
+	}
+```
+
+### 循环依赖
+
+循环依赖的图解
+
+![Spring（八）：DI的过程_9.png](./pics/Spring（八）：DI的过程_9.png)
+
+![Spring（八）：DI的过程_10.png](./pics/Spring（八）：DI的过程_10.png)
+
+相关代码介绍
+
+![Spring（八）：DI的过程_11.png](./pics/Spring（八）：DI的过程_11.png)
+
+getEarlyBeanReference方法
+
+![Spring（八）：DI的过程_12.png](./pics/Spring（八）：DI的过程_12.png)
+
+getSingleton方法
+
+![Spring（八）：DI的过程_13.png](./pics/Spring（八）：DI的过程_13.png)
