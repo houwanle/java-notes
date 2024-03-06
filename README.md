@@ -56,6 +56,7 @@
 - [Redis（五）：持久化RDB、fork、copyonwrite、AOF、RDB与AOF混合使用](./notes/Redis（五）：持久化RDB、fork、copyonwrite、AOF、RDB与AOF混合使用.md)
 - [Redis（六）：主从复制、CAP、PAXOS、cluster分片集群](./notes/Redis（六）：主从复制、CAP、PAXOS、cluster分片集群.md)
 - [分布式锁](./notes/分布式锁.md)
+- [Redis：相关知识点](./notes/Redis：相关知识点.md)
 
 ## 多线程与高并发
 - [多线程与高并发（一）：基础概念](./notes/多线程与高并发（一）：基础概念.md)
