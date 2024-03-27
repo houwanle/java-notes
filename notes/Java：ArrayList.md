@@ -1,5 +1,11 @@
 # Java：ArrayList
 
+## ArrayList最大容量
+- 最大容量为：Integer.MAX_VALUE - 8 = 2147483640 个元素
+  - 自己需要8bytes存储
+- 装满ArrayList<Integer>,会占用：2147483647 * 32 bits = 68719476704 bits （大约8G）
+
+
 ## ArrayList的扩容机制
 ArrayList 的扩容机制是在添加元素时判断当前数组大小是否已经满了，如果已经满了，则创建一个新的更大的数组，并将原来的元素全部复制到新的数组中。具体的扩容规则如下：
 - 当添加元素后，size 大小已经等于或超过了数组的容量 capacity 时，就会触发扩容操作；
@@ -115,3 +121,70 @@ ArrayList 的扩容机制是在添加元素时判断当前数组大小是否已�
     
     }
     ```
+
+
+## ArrayList取交集
+### Java 8 的Stream API
+
+```java
+List<Integer> list1 = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> list2 = Arrays.asList(4, 5, 6, 7, 8);
+
+List<Integer> intersection = list1.stream()
+        .filter(list2::contains)
+        .collect(Collectors.toList());
+```
+
+### 传统的for循环遍历
+
+```java
+List<Integer> list1 = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> list2 = Arrays.asList(4, 5, 6, 7, 8);
+List<Integer> intersection = new ArrayList<>();
+
+for (Integer item : list1) {
+    if (list2.contains(item)) {
+        intersection.add(item);
+    }
+}
+```
+
+### Java的CollectionUtils（Apache Commons Collections）
+
+```java
+import org.apache.commons.collections4.CollectionUtils;
+
+List<Integer> list1 = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> list2 = Arrays.asList(4, 5, 6, 7, 8);
+
+List<Integer> intersection = (List<Integer>) CollectionUtils.intersection(list1, list2);
+```
+
+### 使用Set的retainAll方法
+> 这种方法首先将两个列表转换为Set，然后利用Set的retainAll方法来找到交集。retainAll方法会保留在指定集合（参数）中存在的元素。
+
+```java
+List<Integer> list1 = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> list2 = Arrays.asList(4, 5, 6, 7, 8);
+
+Set<Integer> set1 = new HashSet<>(list1);
+Set<Integer> set2 = new HashSet<>(list2);
+set1.retainAll(set2); // set1现在只包含交集元素
+
+List<Integer> intersection = new ArrayList<>(set1);
+```
+
+### 使用Java 8的并行流（Parallel Streams）
+> 如果列表很大，并且你的机器有多个处理器核心，你可以考虑使用并行流来加速交集的计算。
+
+```java
+List<Integer> list1 = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> list2 = Arrays.asList(4, 5, 6, 7, 8);
+
+Set<Integer> set2 = new HashSet<>(list2); // 使用HashSet提高查找效率
+
+List<Integer> intersection = list1.parallelStream()
+    .filter(set2::contains)
+    .collect(Collectors.toList());
+
+```
